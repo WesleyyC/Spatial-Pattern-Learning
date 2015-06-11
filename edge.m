@@ -12,7 +12,7 @@ classdef edge < handle
     methods
         % Constructor for the class
         function  self = edge(weight,node1ID,node2ID,sortedNodes)
-            % Return empty if no arguments
+            % Throw error if not enough argument
             if nargin < 4
                 error "NotEnoughArgument";
             end
@@ -21,16 +21,16 @@ classdef edge < handle
             self.weight = weight;
             
             if ~isnan(weight) % if this is a true link
-                self.node1 = sortedNodes(node1ID);
-                self.node2 = sortedNodes(node2ID);
-
-                % We assign the edges to the new node
-                self.node1.addEdge(self);
-                self.node2.addEdge(self);
+                self.node1 = sortedNodes{node1ID};
+                self.node2 = sortedNodes{node2ID};
 
                 % Adding neighnors
                 self.node1.addNeighbor(self.node2);
                 self.node2.addNeighbor(self.node1);
+                
+                % We assign the edges to the new node
+                self.node1.addEdge(self);
+                self.node2.addEdge(self);
             end
             
         end
