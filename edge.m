@@ -20,19 +20,8 @@ classdef edge < handle
             % Otherwise, we process the argument
             self.weight = weight;
             
-            if ~isnan(weight) % if this is a true link
-                self.node1 = sortedNodes{node1ID};
-                self.node2 = sortedNodes{node2ID};
-
-                % Adding neighnors
-                self.node1.addNeighbor(self.node2);
-                self.node2.addNeighbor(self.node1);
-                
-                % We assign the edges to the new node
-                self.node1.addEdge(self);
-                self.node2.addEdge(self);
-            end
-            
+            self.node1 = sortedNodes{node1ID};
+            self.node2 = sortedNodes{node2ID};      
         end
         
         % Get the similarity between two edges

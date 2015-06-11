@@ -7,8 +7,6 @@ classdef node < handle
         % The attributes
         ID = NaN;   % ID needs to start with 1 and increment by 1 every new nodes
         atrs = NaN; % atrs is a vector representing the attributes of the node, and the value for each attribute is from 0-1
-        edges = {};% edge is a list of edges connecting to 
-        neighbors = {};
     end
     
     methods
@@ -34,17 +32,7 @@ classdef node < handle
         function [no] = numberOfAtrs(obj)
             no=length(obj.atrs);
         end
-        
-        % Adding edges for the node
-        function addEdge(obj,edge)
-            obj.edges = {obj.edges{1:end},edge};
-        end
-        
-        % Adding neighbors for the node
-        function addNeighbor(obj,neighbor)
-            obj.neighbors = {obj.neighbors{1:end},neighbor};
-        end
-        
+
         % Get the similarity between two nodes
         function [c] = compatibility(obj,obj2)
             
