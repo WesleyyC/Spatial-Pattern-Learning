@@ -4,9 +4,9 @@ clear
 
 %% Create the 1st graph matrix
 
-num_nodes = 7;
-links = {[1,2],[1,4],[1,5],[2,3],[3,4],[3,6],[3,7],[4,5]};
-weight = [1,1,1,1,1,1,1,1];
+num_nodes = 3;
+links = {[1,2],[2,3],[3,1]};
+weight = [1,1,1];
 
 M=NaN(num_nodes);
 
@@ -27,9 +27,9 @@ ARG1 = ARG(M,nodes_atrs);
 
 %% Create the 2nd matrix
 
-num_nodes = 7;
-links = {[1,4],[1,7],[2,4],[3,4],[4,5],[5,6],[5,7],[6,7]};
-weight = [1,1,1,1,1,1,1,1];
+num_nodes = 5;
+links = {[1,2],[2,3],[3,1],[2,4],[4,5],[3,5]};
+weight = [1,1,1,1,1,1];
 
 M=NaN(num_nodes);
 
