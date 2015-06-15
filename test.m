@@ -6,7 +6,7 @@ clear
 
 num_nodes = 3;
 links = {[1,2],[2,3],[3,1]};
-weight = [1,1,1];
+weight = [10,5,2];
 
 M=NaN(num_nodes);
 
@@ -28,8 +28,8 @@ ARG1 = ARG(M,nodes_atrs);
 %% Create the 2nd matrix
 
 num_nodes = 5;
-links = {[4,5],[4,3],[3,5],[5,1],[1,2],[3,2]};
-weight = [1,1,1,1,1,1];
+links = {[1,2],[2,3],[3,1],[2,4],[4,5],[3,5]};
+weight = [10,5,2,30,1,100];
 
 M=NaN(num_nodes);
 

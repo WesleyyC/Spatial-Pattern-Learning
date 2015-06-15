@@ -12,9 +12,7 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     I_1 = 30;
     % e control a range
     e_B = 0.5;
-    e_C=0.05;
-    e=0.5;
-    
+    e_C=0.05;    
     % set up the matrix
     % the size of the real matchin matrix
     real_size = [ARG1.num_nodes,ARG2.num_nodes];
@@ -23,7 +21,7 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     % the size of the matrix with slacks
     augment_size = max(real_size);
     % init a guest m_Head with 1+e
-    m_Init = 1+rand(augment_size);
+    m_Init = rand(augment_size)*10;
     m_Head = m_Init;
     % initial beta to beta_0
     beta = beta_0;
