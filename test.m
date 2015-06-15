@@ -6,7 +6,7 @@ clear
 
 num_nodes = 3;
 links = {[1,2],[2,3],[3,1]};
-weight = [10,5,2];
+weight = [1,1,1];
 
 M=NaN(num_nodes);
 
@@ -29,7 +29,8 @@ ARG1 = ARG(M,nodes_atrs);
 
 num_nodes = 5;
 links = {[1,2],[2,3],[3,1],[2,4],[4,5],[3,5]};
-weight = [10,5,2,30,1,100];
+%weight = [10,5,2,30,1,100];
+weight = [1,1,1,1,1,1];
 
 M=NaN(num_nodes);
 
@@ -48,4 +49,4 @@ nodes_atrs = NaN;
 ARG2 = ARG(M,nodes_atrs);
 
 %% Try to Match
-match = graduated_assign_algorithm(ARG1,ARG2);
+match = graduated_assign_algorithm(ARG1,ARG2)

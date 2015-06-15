@@ -82,7 +82,7 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     end
     
     % get the match_matrix in real size
-    match_matrix = m_Head(1:A,1:I);
+    match_matrix = heuristic(m_Head(1:A,1:I));
 
 end
 
