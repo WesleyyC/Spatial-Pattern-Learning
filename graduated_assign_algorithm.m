@@ -13,19 +13,21 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     % e control a range
     e_B = 0.5;
     e_C=0.05;    
-    % set up the matrix
-    % the size of the real matchin matrix
+    
     % make sure ARG1 is always the smaller graph
     if ARG1.num_nodes>ARG2.num_nodes
         tmp = ARG1;
         ARG1 = ARG2;
         ARG2 = tmp;
     end
+    % the size of the real matchin matrix
     A=ARG1.num_nodes;
     I=ARG2.num_nodes;
     real_size = [A,I];
     % the size of the matrix with slacks
     augment_size = max(real_size);
+    
+    % set up the matrix
     % init a guest m_Head with 1+e
     m_Init = rand(augment_size)*10;
     m_Head = m_Init;
@@ -48,6 +50,7 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
                          for j = 1:I
                              edge1=ARG1.edges{a,b};
                              edge2=ARG2.edges{i,j};
+                             % +=M_bj*c(g_ab,g_ij)
                              Q_ai=Q_ai+m_Head(b,j)*edge1.compatibility(edge2);
                          end
                     end
