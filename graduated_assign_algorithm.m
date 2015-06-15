@@ -13,6 +13,8 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     % e control a range
     e_B = 0.5;
     e_C=0.05;    
+    % node attriubute compatability weight
+    alpha = 1;
     
     % make sure ARG1 is always the smaller graph
     if ARG1.num_nodes>ARG2.num_nodes
@@ -54,6 +56,11 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
                              Q_ai=Q_ai+m_Head(b,j)*edge1.compatibility(edge2);
                          end
                     end
+                    % Get the Nodes
+                    node1=ARG1.nodes{a};
+                    node2=ARG2.nodes{i};
+                    % Add the attribute compatibility to Q
+                    Q_ai=Q_ai+alpha*node1.compatibility(node2);
                     Q(a,i)=Q_ai;
                 end
             end

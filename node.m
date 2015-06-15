@@ -25,7 +25,7 @@ classdef node < handle
         
         % Check if the node has attributes
         function [tf] = hasAtrs(obj)
-            tf = ~isempty(obj.atrs);
+            tf = ~isnan(obj.atrs);
         end
         
         % Get number of attributes

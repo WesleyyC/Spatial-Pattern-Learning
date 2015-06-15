@@ -24,8 +24,8 @@ classdef ARG < handle
             
             % Throw error if the graph matrix and the nodes_atrs does not
             % match
-            if ~isnan(nodes_atrs) && length(M)~=length(nodes_atrs)
-                error "AtrributeArrasySizeNotMatch";
+            if all(~isnan(nodes_atrs)) && length(M)~=length(nodes_atrs)
+                    error "AtrributeArrasySizeNotMatch";
             end
             
             % Get the number of nodes

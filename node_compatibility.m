@@ -12,11 +12,14 @@ function [c] = node_compatibility(node1, node2)
     
     % assume node1 and node2 are node object
     
-    if ~obj.hasAtrs()||~obj2.hasAtrs()
-        c = 0;  % if either of the nodes has NaN attribute, set similarity to 0
-    elseif obj.numberOfAtrs() ~= obj2.numberOfAtrs()    
-        c = 0;  % if the nodes have different number of attributes, set similarity to 0
+    c = 0;
+    
+    if ~node1.hasAtrs()||~node2.hasAtrs()
+        return;  % if either of the nodes has NaN attribute, set similarity to 0
+    elseif node1.numberOfAtrs() ~= node2.numberOfAtrs()    
+        return;  % if the nodes have different number of attributes, set similarity to 0
     else
+        
         % get number of attributes
         no_atrs = node1.numberOfAtrs();
     
@@ -26,7 +29,7 @@ function [c] = node_compatibility(node1, node2)
         
         % sum up the score for each attributes
         for i =1:no_atrs
-            current_atr_score = 1-3*abs(node1_atrs(i)-node2_atrs(u));
+            current_atr_score = 1-3*abs(node1_atrs(i)-node2_atrs(i));
             c = c+current_atr_score;
         end
         

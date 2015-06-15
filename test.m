@@ -6,8 +6,8 @@ clear
 
 num_nodes = 3;
 links = {[1,2],[2,3],[3,1]};
-weight = [10,5,2];
-%weight = [1,1,1];
+%weight = [10,5,2];
+weight = [1,1,1];
 
 M=NaN(num_nodes);
 
@@ -19,7 +19,7 @@ for i = 1:length(links)
     M(node2,node1)=weight(i); %Symmetric
 end
 
-nodes_atrs = NaN;
+nodes_atrs = [1,10,20];
     
 
 %% Build the 1st ARG
@@ -30,8 +30,8 @@ ARG1 = ARG(M,nodes_atrs);
 
 num_nodes = 5;
 links = {[1,2],[2,3],[3,1],[2,4],[4,5],[3,5]};
-weight = [10,5,2,30,1,100];
-%weight = [1,1,1,1,1,1];
+%weight = [10,5,2,30,1,100];
+weight = [1,1,1,1,1,1];
 
 M=NaN(num_nodes);
 
@@ -43,7 +43,7 @@ for i = 1:length(links)
     M(node2,node1)=weight(i); %Symmetric
 end
 
-nodes_atrs = NaN;
+nodes_atrs = [1,10,20,50,30];
 
 %% Build the 2nd ARG
 
