@@ -15,9 +15,15 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     e_C=0.05;    
     % set up the matrix
     % the size of the real matchin matrix
-    real_size = [ARG1.num_nodes,ARG2.num_nodes];
-    A=real_size(1);
-    I=real_size(2);
+    % make sure ARG1 is always the smaller graph
+    if ARG1.num_nodes>ARG2.num_nodes
+        tmp = ARG1;
+        ARG1 = ARG2;
+        ARG2 = tmp;
+    end
+    A=ARG1.num_nodes;
+    I=ARG2.num_nodes;
+    real_size = [A,I];
     % the size of the matrix with slacks
     augment_size = max(real_size);
     % init a guest m_Head with 1+e
@@ -82,7 +88,7 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     end
     
     % get the match_matrix in real size
-    match_matrix = heuristic(m_Head(1:A,1:I));
+    match_matrix = heuristic(m_Head,A,I);
 
 end
 
