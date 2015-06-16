@@ -1,4 +1,6 @@
-%% This is the test for not related attributes and no weight involve
+%% Simple Test
+
+% Test the algorithm using DELICATED setup ARGs.
 
 clear
 
@@ -50,4 +52,6 @@ nodes_atrs = [1,10,20,50,30];
 ARG2 = ARG(M,nodes_atrs);
 
 %% Try to Match
+tic()
 match = graduated_assign_algorithm(ARG1,ARG2)
+toc()
