@@ -29,7 +29,7 @@ function [c] = node_compatibility(node1, node2)
         
         % sum up the score for each attributes
         for i =1:no_atrs
-            current_atr_score = 1-3*abs(node1_atrs(i)-node2_atrs(i));
+            current_atr_score = -3*abs(node1_atrs(i)-node2_atrs(i));
             c = c+current_atr_score;
         end
         

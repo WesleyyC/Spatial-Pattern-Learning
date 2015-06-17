@@ -28,13 +28,18 @@ correct_match = 0;
 mistaken_match = 0;
 
 %% Run the test
-
-tic()
+tStart = tic();
 for i = 1:rounds
+    loopStart=tic();
     run RGTestLoop %which will increment correct_match or mistaken_match count
+    display('One Single Loop');
+    toc(loopStart);
 end
-toc()
-
+display('Total Run Time');
+toc(tStart);
 %% Calculate the correct rate
-correct_rate = correct_match/(correct_match+mistaken_match)
+correct_rate = correct_match/(correct_match+mistaken_match);
+
+display('Correct Rate:');
+display(correct_rate);
 

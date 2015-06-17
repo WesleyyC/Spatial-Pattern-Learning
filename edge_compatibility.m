@@ -12,11 +12,12 @@ function [c] = edge_compatibility(edge1, edge2)
     
     % assume node1 and node2 are node object
     
+    % The range of the edge rate
     if ~edge1.trueEdge()||~edge2.trueEdge()
         c = 0;  % if either of the edge is not true edge
     else     
         % normalize the score
-        c = 1-3*abs(edge1.weight-edge2.weight);
+        c = -3*abs(edge1.weight-edge2.weight);
     end
 
     
