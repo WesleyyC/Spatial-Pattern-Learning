@@ -31,7 +31,8 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     
     % set up the matrix
     % init a guest m_Head with 1+e
-    m_Init = rand(augment_size)*10;
+    e=1.5;
+    m_Init = rand(augment_size)*e;
     m_Head = m_Init;
     % initial beta to beta_0
     beta = beta_0;
@@ -65,8 +66,12 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
                 end
             end
             
-            % Build M
-            m_Head=exp(beta*Q);
+            for a = 1:A
+                for i = 1:I
+                    aaa=beta*Q(a,i);
+                    m_Head(a,i)=exp(aaa);
+                end
+            end
             
             converge_C = 0; % a flag for terminating process B
             I_C = 0;    % counting the iteration of C

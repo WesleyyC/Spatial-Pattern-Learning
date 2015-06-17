@@ -8,15 +8,15 @@ clear
 %% Basic Configuration Setup
 
 % How many rounds
-rounds = 3;
+rounds = 5;
 
 % The size of the test graph
-size = 30;
+size = 10;
 
 % The range of the edge rate
 weight_range = 10;
 % How often two nodes are connected
-connected_rate = 0.8;
+connected_rate = 0.9;
 % How many noise are there
 noise_rate = 0.00;
 

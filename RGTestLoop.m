@@ -38,9 +38,9 @@ end
 %% Generate the Permutation of M
 
 % Determine the size of the permutation of M
-low_limit = min(round(0.8*size),size-3);    % control the limit of lower bound so that the permutation is large enough
+low_limit = round(0.1*size+1);    % control the limit of lower bound so that the permutation is large enough
 low_bound = randi([1 low_limit],1,1);
-up_limit = min(low_bound+2,size);   % control the limit of up_bound so that the permutation matrix is large enough
+up_limit =round(0.9*size);   % control the limit of up_bound so that the permutation matrix is large enough
 up_bound = randi([up_limit,size],1,1);
 test_size = up_bound-low_bound+1;
 test_range = low_bound:up_bound;

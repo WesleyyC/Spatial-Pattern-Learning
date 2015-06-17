@@ -10,8 +10,9 @@ function [ M ] = heuristic( M, A, I )
 
     % get the number of row in M
     row = length(M(:,1));
-    % get the thred
-    thred = 1/row;
+    % get the thred, (or confidence)
+    col = length(M(1,:));
+    thred = (1/col)*0.9;
 
     % clean up
     for i = 1:row
