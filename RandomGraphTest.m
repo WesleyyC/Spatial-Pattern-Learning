@@ -8,7 +8,7 @@ clear
 %% Basic Configuration Setup
 
 % How many rounds
-rounds = 5;
+rounds = 1;
 
 % The size of the test graph
 size = 10;
