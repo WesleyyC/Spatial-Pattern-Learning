@@ -44,7 +44,7 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
             old_B=m_Head;   % get the old matrix
             I_B = I_B+1;    % increment the iteration counting
             % Build the partial derivative matrix Q
-            Q = zeros(size(m_Head));
+            Q = zeros(real_size);
             for a = 1:A
                 for i = 1:I
                     % Sum from A and I and get M_bj*c(edge_ab,edge_ij)
@@ -66,12 +66,9 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
                 end
             end
             
-            for a = 1:A
-                for i = 1:I
-                    aaa=beta*Q(a,i);
-                    m_Head(a,i)=exp(aaa);
-                end
-            end
+            % Normalize Q to avoid NaN/0 produce from exp??
+            Q=normr(Q);
+            m_Head(1:A,1:I)=exp(beta*Q);
             
             converge_C = 0; % a flag for terminating process B
             I_C = 0;    % counting the iteration of C
