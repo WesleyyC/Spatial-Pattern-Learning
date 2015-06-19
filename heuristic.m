@@ -7,27 +7,43 @@ function [ M ] = heuristic( M, A, I )
 
     % get the right size
     M=M(1:A,1:I);
+    
+    % create a directed graph according to the weight
+    DG=zeros(A+I);
+    DG(1:A,A+1:end)=M;
+    
+    % convert the maximum problem to a minimum problem
+    DG=1-DG;
+    
+    % convert the matrix to a undirected graph
+    DG=sparse(DG);
+    UG = tril(DG + DG');
+    
+    % calculate the minimum spanning tree
+    [Tree, ~] = graphminspantree(UG);
+    
+    % convert the result to the right size
+    M = full(Tree);
+    M = M((A+1):end,1:A)';
 
+    % convert the problem to a maximum one
+    not_zero_index=M~=0;
+    M(not_zero_index)=2-M(not_zero_index);
+    
+    
     % get the number of row in M
     row = length(M(:,1));
-    % get the thred, (or confidence)
-    col = length(M(1,:));
-    thred = (1/col)*0.9;
 
     % clean up
     for i = 1:row
         % get the index
-        [maxin,index] = max(M(i,:));
+        [~,index] = max(M(i,:));
         % set the row to zero
         M(i,:)=zeros(size(M(i,:)));
-        % if the maxin is over the confidence thred, turn the column to
-        % zero and assign the maxin to 1.
-        if maxin>thred
-            % set the column to zero
-            M(:,index)=zeros(size(M(:,index)));
-            % set the max to 1
-            M(i,index)=1;
-        end
+        M(:,index)=zeros(size(M(:,index)));
+        % set the max to 1
+        M(i,index)=1;
     end
+
 end
 
