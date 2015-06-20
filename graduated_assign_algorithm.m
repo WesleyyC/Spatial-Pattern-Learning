@@ -37,6 +37,35 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     % initial beta to beta_0
     beta = beta_0;
     
+    % pre-calculate the node compatability
+    C_n = zeros(real_size);
+    for a = 1:A
+        for i = 1:I
+            node1=ARG1.nodes{a};
+            node2=ARG2.nodes{i};
+            C_n(a,i)=node1.compatibility(node2);
+        end
+    end
+    C_n=alpha*C_n;
+    
+    % pre-calculate the edge compatability
+    C_e = cell(real_size);  %each cell is a matrix
+    for a = 1:A
+        for i = 1:I
+            C_ai = zeros(real_size);
+            for b = 1:A
+                 for j = 1:I
+                     edge1=ARG1.edges{a,b};
+                     edge2=ARG2.edges{i,j};
+                     C_ai(b,j)=edge1.compatibility(edge2);
+                 end
+            end
+
+            % Add the attribute compatibility to Q
+            C_e{a,i}=C_ai;
+        end
+    end
+    
     while beta<beta_f   % do A until beta is less than beta_f
         converge_B = 0; % a flag for terminating process B
         I_B = 0;    % counting the iteration of B
@@ -48,23 +77,12 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
             for a = 1:A
                 for i = 1:I
                     % Sum from A and I and get M_bj*c(edge_ab,edge_ij)
-                    Q_ai = 0;
-                    for b = 1:A
-                         for j = 1:I
-                             edge1=ARG1.edges{a,b};
-                             edge2=ARG2.edges{i,j};
-                             % +=M_bj*c(g_ab,g_ij)
-                             Q_ai=Q_ai+m_Head(b,j)*edge1.compatibility(edge2);
-                         end
-                    end
-                    % Get the Nodes
-                    node1=ARG1.nodes{a};
-                    node2=ARG2.nodes{i};
-                    % Add the attribute compatibility to Q
-                    Q_ai=Q_ai+alpha*node1.compatibility(node2);
-                    Q(a,i)=Q_ai;
+                    Q(a,i) = sum(sum(C_e{a,i}.*m_Head(1:A,1:I)));
                 end
             end
+            
+            %add node attribute
+            Q=Q+C_n;
             
             % Normalize Q to avoid NaN/0 produce from exp??
             Q=normr(Q);
@@ -72,23 +90,21 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
             
             converge_C = 0; % a flag for terminating process B
             I_C = 0;    % counting the iteration of C
-            m_One = zeros(size(m_Head));    % a middleware for doing normalization
+            %m_One = zeros(size(m_Head));    % a middleware for doing normalization
             while ~converge_C && I_C <= I_1    % Begin C
                 I_C=I_C+1;  % increment C
                 old_C=m_Head;   % get the m_Head before processing to determine convergence
-                for a = 1:augment_size
-                    for i = 1:augment_size
-                        % normalization by the row
-                        m_One(a,i)=m_Head(a,i)/sum(m_Head(a,:));
-                    end
-                end
                 
-                for a = 1:augment_size
-                    for i = 1:augment_size
-                        % normalization by the column
-                        m_Head(a,i)=m_One(a,i)/sum(m_One(:,i));
-                    end
-                end
+                %normalize the row
+                s=sum(m_Head,2);
+                n=repmat(s,1,augment_size);
+                m_One=m_Head./n;
+                
+                % normalize the column
+                s=sum(m_One,1);
+                n=repmat(s,augment_size,1);
+                m_Head=m_One./n;
+                
                 % check convergence
                 converge_C = converge(m_Head,old_C,e_C);
             end
