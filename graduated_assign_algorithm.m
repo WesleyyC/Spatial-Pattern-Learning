@@ -48,25 +48,29 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     % pre-calculate the edge compatability
     % setup an function handle for caluculating compatibility
     edge_compat_handle=@(edge1,edge2)edge1.compatibility(edge2);
-    % a function help to build up matrix to reduce for loop
-    % this function will build a matrix and return to the cell C_e{a,i}
-    matrix_build_handle=@(a,i)cellfun(edge_compat_handle,...
-            repmat(ARG1.edges(a,:)',1,I),...
-            repmat(ARG2.edges(i,:),A,1));
-    % build up the matrix function
-    C_e = cellfun(matrix_build_handle,...
-        num2cell(repmat(1:A,I,1)'),...
-        num2cell(repmat(1:I,A,1)),...
-        'UniformOutput',false);
     
 %   matrix_build_handle do the same thing below
-%     for a = 1:A
-%         for i = 1:I
-%             C_e{a,i}=cellfun(edge_compat_handle,...
-%                 repmat(ARG1.edges(a,:)',1,I),...
-%                 repmat(ARG2.edges(i,:),A,1));
-%         end
-%     end
+    C_e=cell(real_size);
+    for a = 1:A
+        for i = 1:I
+            C_e{a,i}=cellfun(edge_compat_handle,...
+                repmat(ARG1.edges(a,:)',1,I),...
+                repmat(ARG2.edges(i,:),A,1));
+        end
+    end
+    
+    % no much differnce between below and above so we choose the above one
+    % for a clearer logic
+%     % a function help to build up matrix to reduce for loop
+%     % this function will build a matrix and return to the cell C_e{a,i}
+%     matrix_build_handle=@(a,i)cellfun(edge_compat_handle,...
+%             repmat(ARG1.edges(a,:)',1,I),...
+%             repmat(ARG2.edges(i,:),A,1));
+%     % build up the matrix function
+%     C_e = cellfun(matrix_build_handle,...
+%         num2cell(repmat(1:A,I,1)'),...
+%         num2cell(repmat(1:I,A,1)),...
+%         'UniformOutput',false);
     
     while beta<beta_f   % do A until beta is less than beta_f
         converge_B = 0; % a flag for terminating process B
@@ -77,7 +81,8 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
             
             % Build the partial derivative matrix Q
             m_Head_realsize = m_Head(1:A,1:I);
-            sum_fun=@(mat)sum(sum(mat.*m_Head_realsize));   % sum up the terms for partial differentiation
+            % sum up the terms for partial differentiation
+            sum_fun=@(mat)sum(sum(mat.*m_Head_realsize));
             Q=cellfun(sum_fun,C_e);
             
             %add node attribute

@@ -25,15 +25,10 @@
 % mistaken_match = 0;
 
 %% Generate a Random Matrix
-M = zeros(size);
-for i = 1:size
-    for j = i+1:size
-        if rand()<connected_rate
-            M(i,j)=rand()*weight_range;
-            M(j,i)=M(i,j);
-        end
-    end
-end
+
+M = rand(size)*weight_range;    %  a random matrix with weight_range
+M = (M + M')/2; % make it symmetric and divide two to keep weights in range
+M = M-diag(diag(M));    % set the diagnol to 0
 
 %% Generate the Permutation of M
 

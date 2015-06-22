@@ -28,10 +28,9 @@ function [c] = node_compatibility(node1, node2)
         node2_atrs = node2.atrs;
         
         % sum up the score for each attributes
-        for i =1:no_atrs
-            current_atr_score = -3*abs(node1_atrs(i)-node2_atrs(i));
-            c = c+current_atr_score;
-        end
+        penalty_func = @(val1,val2)-3*abs(val1-val2);
+        
+        c=sum(bsxfun(penalty_func,node1_atrs,node2_atrs));
         
         % normalize the score
         c = c/no_atrs;
