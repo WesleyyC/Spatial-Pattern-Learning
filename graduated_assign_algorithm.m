@@ -38,33 +38,35 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     beta = beta_0;
     
     % pre-calculate the node compatability
-    C_n = zeros(real_size);
-    for a = 1:A
-        for i = 1:I
-            node1=ARG1.nodes{a};
-            node2=ARG2.nodes{i};
-            C_n(a,i)=node1.compatibility(node2);
-        end
-    end
+    % create an function handle for calculating compatibility
+    node_compat_handle=@(node1,node2)node1.compatibility(node2);
+    % calculate the compatibility
+    C_n=cellfun(node_compat_handle,repmat(ARG1.nodes',1,I),repmat(ARG2.nodes,A,1));
+    % times the alpha weight
     C_n=alpha*C_n;
     
     % pre-calculate the edge compatability
-    C_e = cell(real_size);  %each cell is a matrix
-    for a = 1:A
-        for i = 1:I
-            C_ai = zeros(real_size);
-            for b = 1:A
-                 for j = 1:I
-                     edge1=ARG1.edges{a,b};
-                     edge2=ARG2.edges{i,j};
-                     C_ai(b,j)=edge1.compatibility(edge2);
-                 end
-            end
-
-            % Add the attribute compatibility to Q
-            C_e{a,i}=C_ai;
-        end
-    end
+    % setup an function handle for caluculating compatibility
+    edge_compat_handle=@(edge1,edge2)edge1.compatibility(edge2);
+    % a function help to build up matrix to reduce for loop
+    % this function will build a matrix and return to the cell C_e{a,i}
+    matrix_build_handle=@(a,i)cellfun(edge_compat_handle,...
+            repmat(ARG1.edges(a,:)',1,I),...
+            repmat(ARG2.edges(i,:),A,1));
+    % build up the matrix function
+    C_e = cellfun(matrix_build_handle,...
+        num2cell(repmat(1:A,I,1)'),...
+        num2cell(repmat(1:I,A,1)),...
+        'UniformOutput',false);
+    
+%   matrix_build_handle do the same thing below
+%     for a = 1:A
+%         for i = 1:I
+%             C_e{a,i}=cellfun(edge_compat_handle,...
+%                 repmat(ARG1.edges(a,:)',1,I),...
+%                 repmat(ARG2.edges(i,:),A,1));
+%         end
+%     end
     
     while beta<beta_f   % do A until beta is less than beta_f
         converge_B = 0; % a flag for terminating process B
@@ -72,14 +74,11 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
         while ~converge_B && I_B <= I_0 % do B until B is converge or iteration exceeds
             old_B=m_Head;   % get the old matrix
             I_B = I_B+1;    % increment the iteration counting
+            
             % Build the partial derivative matrix Q
-            Q = zeros(real_size);
-            for a = 1:A
-                for i = 1:I
-                    % Sum from A and I and get M_bj*c(edge_ab,edge_ij)
-                    Q(a,i) = sum(sum(C_e{a,i}.*m_Head(1:A,1:I)));
-                end
-            end
+            m_Head_realsize = m_Head(1:A,1:I);
+            sum_fun=@(mat)sum(sum(mat.*m_Head_realsize));   % sum up the terms for partial differentiation
+            Q=cellfun(sum_fun,C_e);
             
             %add node attribute
             Q=Q+C_n;

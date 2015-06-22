@@ -53,5 +53,5 @@ ARG2 = ARG(M,nodes_atrs);
 
 %% Try to Match
 tic()
-match = graduated_assign_algorithm(ARG1,ARG2)
+tmatch = graduated_assign_algorithm(ARG1,ARG2)
 toc()

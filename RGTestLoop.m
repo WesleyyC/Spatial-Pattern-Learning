@@ -75,7 +75,6 @@ ARG2 = ARG(test_M,test_nodes_atrs);
 
 %% Do the match algorithm
 match = graduated_assign_algorithm(ARG2,ARG1);
-
 % Get back the original
 result = match(rev,:);
 

@@ -8,10 +8,10 @@ clear
 %% Basic Configuration Setup
 
 % How many rounds
-rounds = 10;
+rounds = 5;
 
 % The size of the test graph
-size = 50;
+size = 10;
 
 % The range of the edge rate
 weight_range = 10;  % update with edge_compatibility
