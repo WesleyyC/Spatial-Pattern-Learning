@@ -48,8 +48,7 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     % pre-calculate the edge compatability
     % setup an function handle for caluculating compatibility
     edge_compat_handle=@(edge1,edge2)edge1.compatibility(edge2);
-    
-%   matrix_build_handle do the same thing below
+    % each cell will have a matrix
     C_e=cell(real_size);
     for a = 1:A
         for i = 1:I
@@ -88,8 +87,9 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
             %add node attribute
             Q=Q+C_n;
             
-            % Normalize Q to avoid NaN/0 produce from exp??
+            % Normalize Q to avoid NaN/0 produce from exp()
             Q=normr(Q);
+            % Now update m_Head!
             m_Head(1:A,1:I)=exp(beta*Q);
             
             converge_C = 0; % a flag for terminating process B
