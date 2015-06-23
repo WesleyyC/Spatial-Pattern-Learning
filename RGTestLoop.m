@@ -24,16 +24,13 @@
 % correct_match = 0;
 % mistaken_match = 0;
 
+
 %% Generate a Random Matrix
-M = zeros(size);
-for i = 1:size
-    for j = i+1:size
-        if rand()<connected_rate
-            M(i,j)=rand()*weight_range;
-            M(j,i)=M(i,j);
-        end
-    end
-end
+
+M = triu(rand(size)*weight_range,1);    %  upper left part of a random matrix with weight_range
+connected_nodes = triu(rand(size)<connected_rate,1);    % how many are connected
+M = M.*connected_nodes;
+M = M + M'; % make it symmetric
 
 
 %% Generate the Permutation of M
