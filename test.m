@@ -11,7 +11,7 @@ links = {[1,2],[2,3],[3,1]};
 %weight = [10,5,2];
 weight = [1,1,1];
 
-M=NaN(num_nodes);
+M=zeros(num_nodes);
 
 for i = 1:length(links)
     index = links{i};
@@ -35,7 +35,7 @@ links = {[1,2],[2,3],[3,1],[2,4],[4,5],[3,5]};
 %weight = [10,5,2,30,1,100];
 weight = [1,1,1,1,1,1];
 
-M=NaN(num_nodes);
+M=zeros(num_nodes);
 
 for i = 1:length(links)
     index = links{i};
