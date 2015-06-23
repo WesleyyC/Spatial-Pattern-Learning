@@ -22,7 +22,7 @@ for i = 1:length(links)
 end
 
 nodes_atrs = [1,10,20];
-    
+%nodes_atrs = NaN;
 
 %% Build the 1st ARG
 
@@ -46,12 +46,12 @@ for i = 1:length(links)
 end
 
 nodes_atrs = [1,10,20,50,30];
-
+%nodes_atrs = NaN;
 %% Build the 2nd ARG
 
 ARG2 = ARG(M,nodes_atrs);
 
 %% Try to Match
 tic()
-tmatch = graduated_assign_algorithm(ARG1,ARG2)
+match = graduated_assign_algorithm(ARG1,ARG2)
 toc()

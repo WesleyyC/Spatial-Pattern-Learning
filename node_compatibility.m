@@ -12,7 +12,9 @@ function [c] = node_compatibility(node1, node2)
     
     % assume node1 and node2 are node object
     
-    c = 0;
+    weight_range = 10;  % update with RandomGraphTest.m
+    
+    c=0;
     
     if ~node1.hasAtrs()||~node2.hasAtrs()
         return;  % if either of the nodes has NaN attribute, set similarity to 0
@@ -28,7 +30,7 @@ function [c] = node_compatibility(node1, node2)
         node2_atrs = node2.atrs;
         
         % sum up the score for each attributes
-        penalty_func = @(val1,val2)-3*abs(val1-val2);
+        penalty_func = @(val1,val2)1-3*abs(val1-val2)/weight_range;
         
         c=sum(bsxfun(penalty_func,node1_atrs,node2_atrs));
         

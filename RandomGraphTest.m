@@ -11,17 +11,17 @@ clear
 rounds = 10;
 
 % The size of the test graph
-size = 100;
+size = 10;
 
 % The range of the edge rate
-weight_range = 10;  % update with edge_compatibility
+weight_range = 10;  % update with edge_compatibility/node_compatibility
 % How often two nodes are connected
-connected_rate = 0.7;
+connected_rate = 0.9;
 % How many noise are there
-noise_rate = 0.00;
+noise_rate = 0.05;
 
 % Node Attribute Flag
-atr_flag = 0;
+atr_flag = 1;
 
 % Scoring
 correct_match = 0;

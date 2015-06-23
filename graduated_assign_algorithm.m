@@ -14,7 +14,7 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
     e_B = 0.5;
     e_C=0.05;    
     % node attriubute compatability weight
-    alpha = 1;
+    alpha = 0.01;
     
     % make sure ARG1 is always the smaller graph
     if ARG1.num_nodes>ARG2.num_nodes
