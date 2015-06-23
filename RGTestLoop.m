@@ -25,21 +25,23 @@
 % mistaken_match = 0;
 
 %% Generate a Random Matrix
-
-
-M = rand(size)*weight_range;    %  a random matrix with weight_range
-connected_nodes = rand(size)<connected_rate;
-M = M.*connected_nodes;
-M = (M + M')/2; % make it symmetric and divide two to keep weights in range
-M = M-diag(diag(M));    % set the diagnol to 0
+M = zeros(size);
+for i = 1:size
+    for j = i+1:size
+        if rand()<connected_rate
+            M(i,j)=rand()*weight_range;
+            M(j,i)=M(i,j);
+        end
+    end
+end
 
 
 %% Generate the Permutation of M
 
 % Determine the size of the permutation of M
-low_limit = round(0.2*size+1);    % control the limit of lower bound so that the permutation is large enough
+low_limit = round(0.1*size+1);    % control the limit of lower bound so that the permutation is large enough
 low_bound = randi([1 low_limit],1,1);
-up_limit =round(0.8*size);   % control the limit of up_bound so that the permutation matrix is large enough
+up_limit =round(0.9*size);   % control the limit of up_bound so that the permutation matrix is large enough
 up_bound = randi([up_limit,size],1,1);
 test_size = up_bound-low_bound+1;
 test_range = low_bound:up_bound;

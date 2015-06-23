@@ -10,13 +10,13 @@ clear
 % How many rounds
 rounds = 10;
 
-% The size of the test graph
+% The size if the test graph
 size = 10;
 
 % The range of the edge rate
 weight_range = 10;  % update with edge_compatibility/node_compatibility
 % How often two nodes are connected
-connected_rate = 0.9;
+connected_rate = 0.6;
 % How many noise are there
 noise_rate = 0.05;
 
@@ -32,14 +32,15 @@ tStart = tic();
 for i = 1:rounds
     loopStart=tic();
     run RGTestLoop %which will increment correct_match or mistaken_match count
-    display('One Single Loop');
+    display('Singe Round');
     toc(loopStart);
 end
+display(' ');
 display('Total Run Time');
 toc(tStart);
 %% Calculate the correct rate
 correct_rate = correct_match/(correct_match+mistaken_match);
 
-display('Correct Rate:');
+display(' ');
 display(correct_rate);
 
