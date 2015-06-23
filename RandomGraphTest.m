@@ -8,7 +8,7 @@ tStart = tic();
 %% Basic Configuration Setup
 
 % How many rounds
-rounds = 1;
+rounds = 10;
 
 % The size if the test graph
 size = 20;
@@ -28,15 +28,12 @@ correct_match = 0;
 mistaken_match = 0;
 
 %% Run the test
-profile on
 for i = 1:rounds
     loopStart=tic();
     run RGTestLoop %which will increment correct_match or mistaken_match count
     display('Singe Round');
     toc(loopStart);
 end
-p = profile('info');
-profsave(p,'Profile_Result_RHEL')
 %% Calculate the correct rate
 correct_rate = correct_match/(correct_match+mistaken_match);
 
