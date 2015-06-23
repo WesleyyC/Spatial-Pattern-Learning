@@ -36,7 +36,7 @@ for i = 1:rounds
     toc(loopStart);
 end
 p = profile('info');
-profsave(p,'Profile_Result')
+profsave(p,'Profile_Result_RHEL')
 %% Calculate the correct rate
 correct_rate = correct_match/(correct_match+mistaken_match);
 
