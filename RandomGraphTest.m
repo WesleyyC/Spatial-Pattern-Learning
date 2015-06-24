@@ -8,15 +8,15 @@ tStart = tic();
 %% Basic Configuration Setup
 
 % How many rounds
-rounds = 10;
+rounds = 20;
 
 % The size if the test graph
-size = 20;
+size = 10;
 
 % The range of the edge rate
 weight_range = 10;  % update with edge_compatibility/node_compatibility
 % How often two nodes are connected
-connected_rate = 0.6;
+connected_rate = 0.5;
 % How many noise are there
 noise_rate = 0.05;
 

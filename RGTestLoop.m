@@ -60,6 +60,7 @@ nodes_atrs=NaN;
 test_nodes_atrs=NaN;
 if atr_flag
     nodes_atrs=rand([1,size])*weight_range;
+    test_nodes_atrs = nodes_atrs(test_range);
     test_nodes_atrs = nodes_atrs(idx);
 end
 
