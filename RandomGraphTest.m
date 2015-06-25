@@ -11,7 +11,7 @@ tStart = tic();
 rounds = 20;
 
 % The size if the test graph
-size = 10;
+size = 20;
 
 % The range of the edge rate
 weight_range = 10;  % update with edge_compatibility/node_compatibility

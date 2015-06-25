@@ -52,7 +52,7 @@ if noise_rate~=0
         % adding noise to node
         node_noise = rand([1,test_size])*2-1;
         node_noise = node_noise*weight_range*noise_rate;
-        test_nodes_atrs=test_nodes_atrs+node_noise;
+        test_nodes_atrs=test_nodes_atrs+node_noise.*(test_M~=0);
     end
 end
 
