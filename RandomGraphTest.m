@@ -14,33 +14,29 @@ rounds = 20;
 size = 10;
 
 % The range of the edge rate
-weight_range = 50;  % update with edge_compatibility/node_compatibility
+weight_range = 10;  % update with edge_compatibility/node_compatibility
 % How often two nodes are connected
 connected_rate = 0.5;
 % How many noise are there
 noise_rate = 0.05;
 
 % Node Attribute Flag
-atr_flag = 1;
+atr_flag = 0;
 
 % Scoring
-correct_match = 0;
-mistaken_match = 0;
+score = [0,0];
 
 %% Run the test
 for i = 1:rounds
     loopStart=tic();
-    run RGTestLoop %which will increment correct_match or mistaken_match count
+    score=score+RGTestLoop(size, weight_range,connected_rate,noise_rate,atr_flag);
     display('Singe Round');
     toc(loopStart);
 end
 %% Calculate the correct rate
-correct_rate = correct_match/(correct_match+mistaken_match);
-
-display(' ');
+correct_rate = score(1)/sum(score);
 display(correct_rate);
-
-display(' ');
 display('Total Run Time');
 toc(tStart);
+display(' ')
 
