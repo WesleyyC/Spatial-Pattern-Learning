@@ -14,7 +14,7 @@ rounds = 20;
 size = 10;
 
 % The range of the edge rate
-weight_range = 10;  % update with edge_compatibility/node_compatibility
+weight_range = 50;  % update with edge_compatibility/node_compatibility
 % How often two nodes are connected
 connected_rate = 0.5;
 % How many noise are there

@@ -58,6 +58,29 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
         end
     end
     
+%     weight_handle = @(edge)edge.weight;
+%     ARG1_edge_weight = sparse(cellfun(weight_handle,ARG1.edges));
+%     ARG2_edge_weight = sparse(cellfun(weight_handle,ARG2.edges));
+%     [ARG1_index(:,1),ARG1_index(:,2)] = find(ARG1_edge_weight);
+%     [ARG2_index(:,1),ARG2_index(:,2)] = find(ARG2_edge_weight);
+%     arg1_edges_num = length(ARG1_index(:,1));
+%     arg2_edges_num = length(ARG2_index(:,1));
+%     ARG1_edge_index = mat2cell(ARG1_index,ones([1,arg1_edges_num]));
+%     ARG2_edge_index = mat2cell(ARG2_index,ones([1,arg2_edges_num]));
+%     
+%     C_e = mat2cell(zeros([A*A,I*I]),ones([1,A])*A,ones([1,I])*I);    
+%     
+%     for z = 1:arg1_edges_num
+%         for y = 1:arg2_edges_num
+%             index1 = ARG1_edge_index{z};
+%             index2 = ARG2_edge_index{y};
+%             edge1 = ARG1.edges{index1};
+%             edge2 = ARG2.edges{index2};
+%             n = edge1.compatibility(edge2);
+%             C_e{index1(1),index2(1)}(index1(2),index2(2)) = n;             
+%         end
+%     end 
+    
     % no much differnce between below and above so we choose the above one
     % for a clearer logic
 %     % a function help to build up matrix to reduce for loop
