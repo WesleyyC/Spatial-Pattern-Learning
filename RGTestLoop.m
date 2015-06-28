@@ -47,12 +47,12 @@ if noise_rate~=0
     % adding noise to edge
     edge_noise = rand(test_size)*2-1; %-1~1
     edge_noise = edge_noise*weight_range*noise_rate;
-    test_M = test_M + edge_noise;
+    test_M = test_M + edge_noise.*(test_M~=0);
     if atr_flag
         % adding noise to node
         node_noise = rand([1,test_size])*2-1;
         node_noise = node_noise*weight_range*noise_rate;
-        test_nodes_atrs=test_nodes_atrs+node_noise.*(test_M~=0);
+        test_nodes_atrs=test_nodes_atrs+node_noise;
     end
 end
 

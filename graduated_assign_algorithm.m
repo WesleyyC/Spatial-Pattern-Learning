@@ -80,6 +80,7 @@ function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
 %         end
 %     end
     
+    
 %     % no much differnce between below and above so we choose the above one
 %     % for a clearer logic
 %     % a function help to build up matrix to reduce for loop
