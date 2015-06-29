@@ -11,12 +11,12 @@ tStart = tic();
 rounds = 10;
 
 % The size if the test graph
-size = 60;
+size = 20;
 
 % The range of the edge rate
 weight_range = 10;  % update with edge_compatibility/node_compatibility
 % How often two nodes are connected
-connected_rate = 0.2;
+connected_rate = 0.1;
 % How many noise are there
 noise_rate = 0.05;
 

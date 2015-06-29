@@ -7,6 +7,7 @@ classdef ARG < handle
         num_nodes = NaN;
         nodes = {};
         edges = {};
+        matrix = NaN;
         
     end
     
@@ -52,6 +53,8 @@ classdef ARG < handle
                     self.edges{i,j}=edge(M(i,j),i,j,self.nodes);
                 end
             end
+            
+            self.matrix = M;
 
         end
         
