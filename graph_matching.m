@@ -1,4 +1,4 @@
-function [ match_matrix ] = graduated_assign_algorithm( ARG1,ARG2 )
+function [ match_matrix ] = graph_matching( ARG1,ARG2 )
 %   GRADUATED_ASSIGN_ALGORITHM is a function that compute the best match
 %   matrix with two ARGs
 
