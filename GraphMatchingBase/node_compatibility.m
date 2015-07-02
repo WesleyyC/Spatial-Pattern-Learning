@@ -1,4 +1,4 @@
-function [c] = node_compatibility_spmdl(node1, node2)
+function [c] = node_compatibility(node1, node2)
     % node_compatibility function is used to calculate the similarity
     % between node1 and node2
     

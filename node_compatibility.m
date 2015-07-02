@@ -1,44 +1,27 @@
-function [c] = node_compatibility(node1, node2)
+function [c] = node_compatibility_spmdl(node, mdl_node)
     % node_compatibility function is used to calculate the similarity
     % between node1 and node2
     
-    % the score is between [0,1]
-    
-    % the higher the score, the more similiarity are there between node1
-    % and node2
-    
-    % this function can be define by the user, but in our case is
-    % c(N,n)=1-3|N-n|;
-    
-    % assume node1 and node2 are node object
-    
-    weight_range = 10;  % update with RandomGraphTest.m
-    
     c=0;
     
-    if ~node1.hasAtrs()||~node2.hasAtrs()
+    if ~node.hasAtrs()||~mdl_node.hasAtrs()
         return;  % if either of the nodes has NaN attribute, set similarity to 0
-    elseif node1.numberOfAtrs() ~= node2.numberOfAtrs()    
+    elseif node.numberOfAtrs() ~= mdl_node.numberOfAtrs()    
         return;  % if the nodes have different number of attributes, set similarity to 0
     else
         
         % get number of attributes
-        no_atrs = node1.numberOfAtrs();
-    
-        % get the attributes
-        node1_atrs = node1.atrs;
-        node2_atrs = node2.atrs;
+        num_atrs = mdl_node.numberOfAtrs();
         
-        % sum up the score for each attributes
-        penalty_func = @(val1,val2)1-3*abs(val1-val2)/weight_range;
+        % get the mean of attributes
+        node_atrs = node.atrs;
+        mdl_node_atrs = mdl_node.atrs;
+        % get the covariance matrix of model node
+        mdl_node_cov = mdl_node.cov;
         
-        c=sum(bsxfun(penalty_func,node1_atrs,node2_atrs));
-        
-        % normalize the score
-        c = c/no_atrs;
+        % calculate the score
+        c=exp(-(node_atrs-mdl_node_atrs)/mdl_node_cov*(node_atrs-mdl_node_atrs))/...
+            ((2*pi)^(num_atrs/2)*sqrt(abs(mdl_node_cov)));
     end
-
-    
-
 end
 

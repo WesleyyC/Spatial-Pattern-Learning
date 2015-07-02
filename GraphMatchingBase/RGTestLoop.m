@@ -56,9 +56,6 @@ if noise_rate~=0
     end
 end
 
-M(~M)=NaN;
-test_M(~test_M)=NaN;
-
 % Generate the Graph
 ARG1 = ARG(M,nodes_atrs);
 ARG2 = ARG(test_M,test_nodes_atrs);
