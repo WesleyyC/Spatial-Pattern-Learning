@@ -14,8 +14,9 @@ function [c] = edge_compatibility(edge1, edge2)
     
     weight_range = 10;  %update with RandomGraphTestValue
     
-    %The range of the edge rate
-    if edge1.weight==0||edge2.weight==0
+    % The range of the edge rate
+    % Takes a lot of time
+    if ~edge1.exist()||~edge2.exist()
         c = 0;  % if either of the edge is not true edge
     else     
         %normalize the score

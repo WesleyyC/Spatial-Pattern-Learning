@@ -34,8 +34,8 @@ classdef edge < handle
             end
         end
         
-        function [tf] = trueEdge(obj)
-            tf=obj.weight~=0;
+        function [tf] = exist(obj)
+            tf=~isnan(obj.weight);
         end
     end
     
