@@ -27,7 +27,7 @@ function [ match_matrix ] = graph_matching( ARG1,ARG2 )
     I=ARG2.num_nodes;
     real_size = [A,I];
     % the size of the matrix with slacks
-    augment_size = max(real_size);
+    augment_size = [A+1,I+1];
     
     % set up the matrix
     % init a guest m_Head with 1+e
@@ -131,12 +131,14 @@ function [ match_matrix ] = graph_matching( ARG1,ARG2 )
                 
                 %normalize the row
                 s=sum(m_Head,2);
-                n=repmat(s,1,augment_size);
+                n=repmat(s,1,I+1);
+                %n(A+1,:)=ones(size(n(A+1,:)));
                 m_One=m_Head./n;
                 
                 % normalize the column
                 s=sum(m_One,1);
-                n=repmat(s,augment_size,1);
+                n=repmat(s,A+1,1);
+                %n(:,I+1)=ones(size(n(:,I+1)));
                 m_Head=m_One./n;
                 
                 % check convergence
