@@ -5,8 +5,8 @@ function [ M ] = heuristic( M, A, I )
 %   In this version, the cleanM will make the largest number in each row 1
 %   and the others to 0.
 
-    % get the right size
-    M=M(1:A,1:I);
+    A=A+1;
+    I=I+1;
     
     % create a directed graph according to the weight
     DG=zeros(A+I);
@@ -44,6 +44,8 @@ function [ M ] = heuristic( M, A, I )
         % set the max to 1
         M(i,index)=1;
     end
+    
+    M=M(1:A-1,1:I-1);
 
 end
 
