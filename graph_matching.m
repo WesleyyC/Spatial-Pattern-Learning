@@ -16,8 +16,8 @@ function [ match_matrix ] = graph_matching( ARG1,ARG2 )
     % node attriubute compatability weight
     alpha = 0.1;
     
-    % make sure ARG1 is always the smaller graph
-    if ARG1.num_nodes>ARG2.num_nodes
+    % ARG2 is the model arg
+    if ~isa(ARG2,mdl_ARG)
         tmp = ARG1;
         ARG1 = ARG2;
         ARG2 = tmp;
@@ -39,7 +39,7 @@ function [ match_matrix ] = graph_matching( ARG1,ARG2 )
     
     % pre-calculate the node compatability
     % create an function handle for calculating compatibility
-    node_compat_handle=@(node1,node2)node1.compatibility(node2);
+    node_compat_handle=@(node1,node2)node_compatibility(node1,node2);
     % calculate the compatibility
     C_n=cellfun(node_compat_handle,repmat(ARG1.nodes',1,I),repmat(ARG2.nodes,A,1));
     % times the alpha weight
@@ -68,7 +68,7 @@ function [ match_matrix ] = graph_matching( ARG1,ARG2 )
             for y = 1:arg2_edges_num
                 index1 = ARG1_edge_index{z};
                 index2 = ARG2_edge_index{y};
-                C_e{index1(1),index2(1)}(index1(2),index2(2)) = ARG1.edges{index1(1),index1(2)}.compatibility(ARG2.edges{index2(1),index2(2)});             
+                C_e{index1(1),index2(1)}(index1(2),index2(2)) = edge_compatibility(ARG1.edges{index1(1),index1(2)}, ARG2.edges{index2(1),index2(2)});             
             end
         end 
         
@@ -76,7 +76,7 @@ function [ match_matrix ] = graph_matching( ARG1,ARG2 )
     
         % for high connected rate    
         % setup an function handle for caluculating compatibility
-        edge_compat_handle=@(edge1,edge2)edge1.compatibility(edge2);
+        edge_compat_handle=@(edge1,edge2)edge_compatibility(edge1,edge2);
         % each cell will have a matrix
         C_e=cell(real_size);
         for a = 1:A

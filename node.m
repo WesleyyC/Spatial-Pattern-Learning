@@ -25,22 +25,12 @@ classdef node < handle
         
         % Check if the node has attributes
         function [tf] = hasAtrs(obj)
-            tf = ~isnan(obj.atrs);
+            tf = all(~isnan(obj.atrs));
         end
         
         % Get number of attributes
         function [no] = numberOfAtrs(obj)
             no=length(obj.atrs);
-        end
-
-        % Get the similarity between two nodes
-        function [c] = compatibility(obj,obj2)
-            
-            if ~isa(obj2,'node')% obj2 has to be a node too
-                c = NaN;
-            else
-                c = node_compatibility(obj,obj2);
-            end
         end
         
     end
