@@ -1,4 +1,4 @@
-# Spatial Pattern Matching
+# Spatial Pattern Recognition
 
 This is an MATLAB OOP implementation of ARGs spatial pattern matching using a probabilistic parametric model.
 
