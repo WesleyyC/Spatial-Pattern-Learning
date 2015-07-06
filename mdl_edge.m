@@ -7,16 +7,14 @@ classdef mdl_edge < edge
     
     methods
         % Constructor for the class
-        function  obj = mdl_edge(edge)
+        function  obj = mdl_edge(atrs,node1ID,node2ID,sortedNodes)
             % Throw error if not enough argument
             if nargin < 1
                 error "NotEnoughArgument";
             end
             
             % Passing original value
-            obj.atrs = edge.atrs;
-            obj.node1 = edge.node1;
-            obj.node2 = edge.node2;
+            obj=obj@edge(atrs,node1ID,node2ID,sortedNodes);
             
             % Initial covariance matrix as an identtiy matrix
             obj.cov = eye(length(atrs));

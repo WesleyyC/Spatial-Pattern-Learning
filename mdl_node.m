@@ -8,15 +8,14 @@ classdef mdl_node < node
     
     methods
         % Constructor for the class
-        function  obj = mdl_node(node,frequency)
+        function  obj = mdl_node(ID,atrs,frequency)
             % Throw error if not enough argument
             if nargin < 2
                 error "NotEnoughArgument";
             end
             
             % Passing original value
-            obj.ID=node.ID;
-            obj.atrs = node.atrs;
+            obj=obj@node(ID,atrs);
             
             % Initial covariance matrix as an identtiy matrix
             obj.cov = eye(length(atrs));

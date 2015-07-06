@@ -7,6 +7,8 @@ classdef edge < handle
         atrs = NaN;   % the weight for the link, and be NaN if there is no link between node1 and node2
         node1 = NaN;
         node2 = NaN;
+        node1ID = NaN;
+        node2ID = NaN;
     end
     
     methods
@@ -21,7 +23,10 @@ classdef edge < handle
             self.atrs = atrs;
             
             self.node1 = sortedNodes{node1ID};
-            self.node2 = sortedNodes{node2ID};      
+            self.node2 = sortedNodes{node2ID};  
+            
+            self.node1ID = node1ID;
+            self.node2ID = node2ID;
         end
         
         % check if such edge exist

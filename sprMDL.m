@@ -12,7 +12,7 @@ classdef sprMDL < handle
     
     methods
         % Constructor for the class
-        function  obj = mdl_node(sampleARGs,number_of_components)
+        function  obj = sprMDL(sampleARGs,number_of_components)
             
             % Throw error if not enough argument
             if nargin < 1
@@ -31,12 +31,10 @@ classdef sprMDL < handle
             % Randoming pick component from sampleARGs
             idx = randperm(length(sampleARGs)); % we first permutate the index for randomness
             idx = idx(1:number_of_components);  % take what we need
-            
+            comp_ARG = sampleARGs(idx);
             % Now convert it to model ARG
-            obj.mdl_ARGs=cellfun(@mdl_ARG,sampleARGs{idx}); 
-        end
-        
+            obj.mdl_ARGs=cellfun(@mdl_ARG,comp_ARG,'UniformOutput',false); 
+        end       
     end
-    
 end
 

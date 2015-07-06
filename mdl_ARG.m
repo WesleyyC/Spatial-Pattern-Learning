@@ -1,4 +1,4 @@
-classdef mdl_ARG
+classdef mdl_ARG < handle
     %   mdl_ARG represetns a component in our model
     properties (GetAccess=public,SetAccess=private)
         num_nodes = NaN;
@@ -24,20 +24,15 @@ classdef mdl_ARG
             freq = 1/(self.num_nodes+1);
             
             % Create Nodes
-            for ID = 1:self.num_nodes
-                self.nodes{ID}=mdl_node(ARG.nodes{ID},freq);
-            end
+            mdl_node_handle=@(node)mdl_node(node.ID,node.atrs,freq);
+            self.nodes = cellfun(mdl_node_handle,ARG.nodes,'UniformOutput',false);
             
             % The null node for backgroudn matching
             self.nodes{self.num_nodes+1}=mdl_node(self.num_nodes+1,NaN,freq);
             
             % Create Edge
-            for i = 1:self.num_nodes
-                for j = 1:self.num_nodes
-                    self.edges{i,j}=mdl_edge(ARG.edges{i.j});
-                end
-            end
-            
+            mdl_edge_handle=@(edge)mdl_edge(edge.atrs,edge.node1ID,edge.node2ID,self.nodes);
+            self.edges = cellfun(mdl_edge_handle,ARG.edges,'UniformOutput',false);    
         end
         
     end
