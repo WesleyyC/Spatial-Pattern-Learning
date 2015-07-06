@@ -3,7 +3,6 @@ classdef sprMDL < handle
     %   pattern providing by a set of sample ARGs.
     
     
-    %   algorithm current works with zeros instead of NaN
     properties
         number_of_components = NaN;
         weight = NaN;

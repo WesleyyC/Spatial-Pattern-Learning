@@ -7,6 +7,9 @@ classdef mdl_ARG < handle
     end
     
     methods
+        
+        % setting up constructor which will take an sample ARG and build a
+        % new component for the model.
         function self = mdl_ARG(ARG)
             % Throw error if not enough argument
             if nargin < 1
@@ -20,17 +23,17 @@ classdef mdl_ARG < handle
             self.nodes = cell(1,self.num_nodes+1);
             self.edges = cell(self.num_nodes,self.num_nodes);
             
-            % Initial frequency
+            % Initial frequency to a uniform frequency
             freq = 1/(self.num_nodes+1);
             
-            % Create Nodes
+            % Convert ARG node to mdl_node
             mdl_node_handle=@(node)mdl_node(node.ID,node.atrs,freq);
             self.nodes = cellfun(mdl_node_handle,ARG.nodes,'UniformOutput',false);
             
-            % The null node for backgroudn matching
+            % Set an null node for backgroudn matching to the end of nodes
             self.nodes{self.num_nodes+1}=mdl_node(self.num_nodes+1,NaN,freq);
             
-            % Create Edge
+            % Convert ARG edge to mdl_edge
             mdl_edge_handle=@(edge)mdl_edge(edge.atrs,edge.node1ID,edge.node2ID,self.nodes);
             self.edges = cellfun(mdl_edge_handle,ARG.edges,'UniformOutput',false);    
         end

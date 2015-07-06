@@ -9,7 +9,7 @@ classdef mdl_edge < edge
         % Constructor for the class
         function  obj = mdl_edge(atrs,node1ID,node2ID,sortedNodes)
             % Throw error if not enough argument
-            if nargin < 1
+            if nargin < 4
                 error "NotEnoughArgument";
             end
             
