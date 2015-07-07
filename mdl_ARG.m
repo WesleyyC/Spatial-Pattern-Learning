@@ -23,8 +23,8 @@ classdef mdl_ARG < handle
             self.nodes = cell(1,self.num_nodes+1);
             self.edges = cell(self.num_nodes,self.num_nodes);
             
-            % Initial frequency to a uniform frequency
-            freq = 1/(self.num_nodes+1);
+            % Initial frequency to 1
+            freq = 1;
             
             % Convert ARG node to mdl_node
             mdl_node_handle=@(node)mdl_node(node.ID,node.atrs,freq);
@@ -41,6 +41,11 @@ classdef mdl_ARG < handle
             self.edges = cellfun(mdl_edge_handle,ARG.edges,'UniformOutput',false);    
         end
         
+        function updateNodeWeight(obj,frequencies)
+            for i =1:obj.num_nodes
+                obj.nodes{i}.updateFrequency(frequencies(i));
+            end
+        end     
     end
     
 end

@@ -1,4 +1,4 @@
-function [ match_matrix ] = graph_matching( ARG1,ARG2 )
+function [ match_matrix,C_n,C_e] = graph_matching( ARG1,ARG2 )
 %   GRADUATED_ASSIGN_ALGORITHM is a function that compute the best match
 %   matrix with two ARGs
 
@@ -150,6 +150,8 @@ function [ match_matrix ] = graph_matching( ARG1,ARG2 )
     
     % get the match_matrix in real size
     match_matrix = heuristic(m_Head,A,I);
-
+    
+    % return C_n without the alpha
+    C_n = C_n/alpha;
 end
 

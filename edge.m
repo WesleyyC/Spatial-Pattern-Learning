@@ -13,7 +13,7 @@ classdef edge < handle
     
     methods
         % Constructor for the class
-        function  self = edge(atrs,node1ID,node2ID,sortedNodes)
+        function self = edge(atrs,node1ID,node2ID,sortedNodes)
             % Throw error if not enough argument
             if nargin < 4
                 error "NotEnoughArgument";

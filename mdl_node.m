@@ -23,6 +23,10 @@ classdef mdl_node < node
             % Initial frequency
             obj.frequency = frequency;
         end
+        
+        function updateFrequency(obj,freq)
+            obj.frequency = freq;
+        end
     end
     
     % Update Mean
