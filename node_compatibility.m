@@ -3,7 +3,7 @@ function [c] = node_compatibility(node, mdl_node)
     % between node1 and node2
     
     c=0;
-    if ~isa(node,node) || ~isa(mdl_node,mdl_node)
+    if ~isa(node,'node') || ~isa(mdl_node,'mdl_node')
         error 'ArgumentTypeNotFit';
     elseif ~node.hasAtrs()||~mdl_node.hasAtrs()
         return;  % if either of the nodes has NaN attribute, set similarity to 0

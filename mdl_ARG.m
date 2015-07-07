@@ -3,7 +3,7 @@ classdef mdl_ARG < handle
     properties (GetAccess=public,SetAccess=private)
         num_nodes = NaN;
         nodes = {};
-        edges = {};        
+        edges = {};
     end
     
     methods
@@ -30,8 +30,11 @@ classdef mdl_ARG < handle
             mdl_node_handle=@(node)mdl_node(node.ID,node.atrs,freq);
             self.nodes = cellfun(mdl_node_handle,ARG.nodes,'UniformOutput',false);
             
-            % Set an null node for backgroudn matching to the end of nodes
-            self.nodes{self.num_nodes+1}=mdl_node(self.num_nodes+1,NaN,freq);
+            % This should not be include in the graph matching, but there
+            % should be a way to incoprate this.
+%             % Set an null node for backgroudn matching to the end of nodes
+%             self.nodes{self.num_nodes+1}=mdl_node(self.num_nodes+1,NaN,freq);
+%             self.num_nodes = self.num_nodes+1;
             
             % Convert ARG edge to mdl_edge
             mdl_edge_handle=@(edge)mdl_edge(edge.atrs,edge.node1ID,edge.node2ID,self.nodes);

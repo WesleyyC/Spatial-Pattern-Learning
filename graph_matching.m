@@ -17,7 +17,7 @@ function [ match_matrix ] = graph_matching( ARG1,ARG2 )
     alpha = 0.1;
     
     % ARG2 is the model arg
-    if ~isa(ARG2,mdl_ARG)
+    if ~isa(ARG2,'mdl_ARG')
         tmp = ARG1;
         ARG1 = ARG2;
         ARG2 = tmp;
@@ -48,8 +48,7 @@ function [ match_matrix ] = graph_matching( ARG1,ARG2 )
     % pre-calculate the edge compatability
  
     % calculate the connected rate and decide which method to use
-    connected_rate = ((sum(sum(ARG2.matrix~=0))/numel(ARG2.matrix)+...
-        sum(sum(ARG1.matrix~=0))/numel(ARG1.matrix)))/2;
+    connected_rate = sum(sum(ARG1.matrix~=0))/numel(ARG1.matrix);
 
     if connected_rate<0.4
         

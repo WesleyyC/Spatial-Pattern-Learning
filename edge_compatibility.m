@@ -4,10 +4,10 @@ function [c] = edge_compatibility(edge, mdl_edge)
     
     c=0;
     
-    if ~isa(edge,edge) || ~isa(mdl_edge,mdl_edge)
+    if ~isa(edge,'edge') || ~isa(mdl_edge,'mdl_edge')
         error 'ArgumentTypeNotFit';
-    elseif ~edge.hasAtrs()||~mdl_edge.hasAtrs()
-        return;  % if either of the nodes has NaN attribute, set similarity to 0
+    elseif ~edge.exist()||~mdl_edge.exist()
+        return;  % if either of the edge does not exist or has NaN attribute
     elseif edge.numberOfAtrs() ~= mdl_edge.numberOfAtrs()    
         return;  % if the nodes have different number of attributes, set similarity to 0
     else
