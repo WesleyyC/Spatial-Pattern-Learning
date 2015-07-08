@@ -4,10 +4,28 @@ classdef sprMDL < handle
     
     
     properties
+        % Important number in model
         number_of_components = NaN;
+        number_of_sample = NaN;
+        
+        % alpha, weight for each model
         weight = NaN;
+        
+        % the components
         mdl_ARGs={};
+        
+        % the sample
         sampleARGs = NaN;
+        
+        % graph matching return
+        node_match_scores={};
+        node_compatibilities={};
+        edge_compatibilities={};
+        
+        % sample-component matching score
+        component_scores = NaN;
+        sample_component_matching_probs=NaN;
+        
     end
     
     methods
@@ -26,6 +44,7 @@ classdef sprMDL < handle
             
             % Get the number of components
             obj.number_of_components = number_of_components;
+            obj.number_of_sample=length(sampleARGs);
             obj.mdl_ARGs = cell(1,number_of_components);
             
             % Assigning Weight to 1
@@ -37,61 +56,66 @@ classdef sprMDL < handle
             comp_ARG = sampleARGs(idx);
             % Now convert it to model ARG
             obj.mdl_ARGs=cellfun(@mdl_ARG,comp_ARG,'UniformOutput',false); 
-            
         end
         
-        function updateWeight(obj)
-            % first update component weight alpha
-            sample_prob_array = @(sample)sprMDL.sample_components_probabilities(sample,obj.mdl_ARGs);
-            each_weight = cellfun(sample_prob_array,obj.sampleARGs,'UniformOutput',false);
-            sample_number = length(each_weight);
-            obj.weight = zeros([1,obj.number_of_components]);
-            for i = 1:sample_number
-                obj.weight = obj.weight+each_weight{i};
-            end
-            obj.weight = obj.weight/sample_number;
-            
-            % then update nodes frequency beta
-            for i = 1:obj.number_of_components
-                obj.mdl_ARGs{i}.updateNodeWeight(sprMDL.component_node_frequency(obj.sampleARGs,obj.mdl_ARGs{i},num2cell(cell2mat(each_weight(i)))));
-            end 
+        function EM(obj)
+            obj.graphMatching();
+            obj.getMatchingProbs();
+            obj.updateComponentWeight();
+            obj.updateComponentNodeFrequency();
         end
-       
+        
+        function updateComponentWeight(obj)
+            obj.weight = sum(obj.sample_component_matching_probs)/obj.number_of_sample;
+        end
+        
+        function updateComponentNodeFrequency(obj)
+            for i = 1:obj.number_of_components
+                frequency=zeros([1,obj.mdl_ARGs{i}.num_nodes]);
+                sample_node_sum = 0;
+                for j = 1:obj.number_of_sample
+                    current_freq =sum(obj.node_match_scores{j,i});
+                    frequency=frequency+current_freq*obj.sample_component_matching_probs(j,i);
+                    sample_node_sum=sample_node_sum+obj.sampleARGs{j}.num_nodes*obj.sample_component_matching_probs(j,i);
+                end
+                obj.mdl_ARGs{i}.updateNodeFrequency(frequency/sample_node_sum);
+            end    
+        end
+        
+        function getMatchingProbs(obj)
+            obj.graphMatching();
+            handle=@(node_match_score,node_compatibility,edge_compatibility)sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility);
+            obj.component_scores=cellfun(handle,obj.node_match_scores,obj.node_compatibilities,obj.edge_compatibilities);
+            s=sum(obj.component_scores,2);
+            n=repmat(s,1,obj.number_of_components);
+            obj. sample_component_matching_probs=obj.component_scores./n;
+        end
+        
+        function graphMatching(obj)
+            obj.node_match_scores = cell([obj.number_of_sample,obj.number_of_components]);
+            obj.node_compatibilities = cell(size(obj.node_match_scores));
+            obj.edge_compatibilities = cell(size(obj.node_match_scores));
+            
+            for i=1:obj.number_of_sample
+                for j = 1:obj.number_of_components
+                    [node_match_score,node_compatibility,edge_compatibility] = graph_matching(obj.sampleARGs{i},obj.mdl_ARGs{j});
+                    obj.node_match_scores{i,j}=node_match_score;
+                    obj.node_compatibilities{i,j}=node_compatibility;
+                    obj.edge_compatibilities{i,j}=edge_compatibility;
+                end
+            end
+        end
     end
     
     methods(Static)
-        function frequencies = component_node_frequency(samples,component,weights)
-            single_sample_handle=@(sample,weight)sprMDL.component_node_frequency_in_sample(sample,component)*weight;
-            each_frequencies=cellfun(single_sample_handle,samples,weights,'UniformOutput',false);
-            frequencies = zeros([1,component.num_nodes]);
-            sample_number = length(each_frequencies);
-            for i = 1:sample_number
-                frequencies=frequencies+each_frequencies{i};
-            end
-        end
-        
-        function frequencies = component_node_frequency_in_sample(sample,component)
-            node_match_score = graph_matching(sample,component);
-            frequencies = sum(node_match_score)/sample.num_nodes;
-        end
-        
-        % sample matching probability arrays
-        function probs = sample_components_probabilities(sample,components)
-            % calculate the score for each component
-            score_handle=@(component)sprMDL.component_score(sample,component);
-            % return the array of score
-            probs = cellfun(score_handle,components);
-            % normalize
-            probs = probs/sum(probs);
-        end
-        
         % scoring for each sample-component pair
-        function score = component_score(sample,component)
-           % run a matching on two graphs and get the scoring etc
-           [node_match_score,node_compatibility,edge_compatibility] = graph_matching(sample,component);
+        function score = component_score(node_match_score,node_compatibility,edge_compatibility)
            % calculate the prob from the nodes part
            score = sum(sum(bsxfun(@times,node_match_score,node_compatibility)));
+           
            % calculate the prob from the edges part
+           % #this only feels right, but might need a fresh eye to check on
+           % it
            edge_times_handle = @(mat)sum(sum(bsxfun(@times,node_match_score,mat)));
            first_time = cellfun(edge_times_handle,edge_compatibility);
            score = score + sum(sum(bsxfun(@times,first_time,node_match_score)));         

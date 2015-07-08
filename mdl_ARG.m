@@ -30,8 +30,8 @@ classdef mdl_ARG < handle
             mdl_node_handle=@(node)mdl_node(node.ID,node.atrs,freq);
             self.nodes = cellfun(mdl_node_handle,ARG.nodes,'UniformOutput',false);
             
-            % This should not be include in the graph matching, but there
-            % should be a way to incoprate this.
+%             % This should not be include in the graph matching, but there
+%             % should be a way to incoprate this.
 %             % Set an null node for backgroudn matching to the end of nodes
 %             self.nodes{self.num_nodes+1}=mdl_node(self.num_nodes+1,NaN,freq);
 %             self.num_nodes = self.num_nodes+1;
@@ -41,7 +41,7 @@ classdef mdl_ARG < handle
             self.edges = cellfun(mdl_edge_handle,ARG.edges,'UniformOutput',false);    
         end
         
-        function updateNodeWeight(obj,frequencies)
+        function updateNodeFrequency(obj,frequencies)
             for i =1:obj.num_nodes
                 obj.nodes{i}.updateFrequency(frequencies(i));
             end
