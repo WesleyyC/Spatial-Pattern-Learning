@@ -2,7 +2,7 @@ classdef edge < handle
     %   edge is the connection between node and 
     %   it will have some assigned weight and two end points (nodes)
     
-    properties (GetAccess=public,SetAccess=private)
+    properties (GetAccess=public,SetAccess=protected)
         % The attributes
         atrs = NaN;   % the weight for the link, and be NaN if there is no link between node1 and node2
         node1 = NaN;

@@ -19,9 +19,10 @@ function [c] = node_compatibility(node, mdl_node)
         mdl_node_atrs = mdl_node.atrs;
         % get the covariance matrix of model node
         mdl_node_cov = mdl_node.cov;
+        mdl_node_cov_inv = mdl_node.cov_inv;
         
         % calculate the score
-        c=exp(-(node_atrs-mdl_node_atrs)*inv(mdl_node_cov)*(node_atrs-mdl_node_atrs)')/...
+        c=exp(-(node_atrs-mdl_node_atrs)*mdl_node_cov_inv*(node_atrs-mdl_node_atrs)')/...
             ((2*pi)^(num_atrs/2)*sqrt(det(mdl_node_cov)));
     end
 end

@@ -20,9 +20,10 @@ function [c] = edge_compatibility(edge, mdl_edge)
         mdl_edge_atrs = mdl_edge.atrs;
         % get the covariance matrix of model node
         mdl_edge_cov = mdl_edge.cov;
+        mdl_edge_cov_inv = mdl_edge.cov_inv;
         
         % calculate the score
-        c=exp(-(edge_atrs-mdl_edge_atrs)*inv(mdl_edge_cov)*(edge_atrs-mdl_edge_atrs)')/...
+        c=exp(-(edge_atrs-mdl_edge_atrs)*mdl_edge_cov_inv*(edge_atrs-mdl_edge_atrs)')/...
             ((2*pi)^(num_atrs/2)*sqrt(det(mdl_edge_cov)));
     end
 end

@@ -59,31 +59,79 @@ classdef sprMDL < handle
         end
         
         function EM(obj)
+            % get the node matching score
             obj.graphMatching();
+            % get the sample-component matching score and probability
             obj.getMatchingProbs();
+            % update the weight for each component
             obj.updateComponentWeight();
+            % update the frequency for each component node
             obj.updateComponentNodeFrequency();
+            % update the atrs for each component node
+            obj.updateComponentNodeAtrs();
         end
         
-        function updateComponentWeight(obj)
-            obj.weight = sum(obj.sample_component_matching_probs)/obj.number_of_sample;
-        end
-        
-        function updateComponentNodeFrequency(obj)
+        % update the atrs for each component node
+        % # this function can be easier, but I can think of a better way to
+        % do this yet since atrs can be vector and cell operation is not
+        % fast/easy
+        function updateComponentNodeAtrs(obj)
+            % for each component
             for i = 1:obj.number_of_components
-                frequency=zeros([1,obj.mdl_ARGs{i}.num_nodes]);
+                % for each node
+                for n = 1:obj.mdl_ARGs{i}.num_nodes
+                    atrs = 0;
+                    denominator=0;
+                    % we go over the sample
+                    for j = 1:obj.number_of_sample
+                        current_sample_atrs = 0;
+                        current_sample_denominator = 0;
+                        % and finds its matching node, calculate the
+                        % average atrs
+                        for v =  1:obj.sampleARGs{j}.num_nodes
+                            current_sample_atrs=current_sample_atrs+obj.sampleARGs{j}.nodes{v}.atrs*obj.node_match_scores{j,i}(v,n);
+                            current_sample_denominator = current_sample_denominator + obj.node_match_scores{j,i}(v,n);
+                        end
+                        atrs = atrs + current_sample_atrs*obj.sample_component_matching_probs(j,i);
+                        denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(j,i);
+                    end
+                    % udpate the value
+                    obj.mdl_ARGs{i}.nodes{n}.updateAtrs(atrs/denominator);
+                end
+            end       
+        end
+        
+        % update the frequency for each component node
+        function updateComponentNodeFrequency(obj)
+            % for each component
+            for i = 1:obj.number_of_components
+                frequency=0;
                 sample_node_sum = 0;
+                % for each sample
                 for j = 1:obj.number_of_sample
+                    % we calculate the component node frequency in this
+                    % specific sample
                     current_freq =sum(obj.node_match_scores{j,i});
                     frequency=frequency+current_freq*obj.sample_component_matching_probs(j,i);
                     sample_node_sum=sample_node_sum+obj.sampleARGs{j}.num_nodes*obj.sample_component_matching_probs(j,i);
                 end
+                % update the frequency for all the nodes in the model in
+                % the same time
                 obj.mdl_ARGs{i}.updateNodeFrequency(frequency/sample_node_sum);
             end    
         end
         
+        % update the weight for each component
+        function updateComponentWeight(obj)
+            % sum up the samples-component probabilities and divide by
+            % sample number
+            obj.weight = sum(obj.sample_component_matching_probs)/obj.number_of_sample;
+        end
+        
+        % get the sample-component matching score and probability
         function getMatchingProbs(obj)
-            obj.graphMatching();
+            % Use the graphMatching() data calculate the sample-componennt
+            % matching score & probability
             handle=@(node_match_score,node_compatibility,edge_compatibility)sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility);
             obj.component_scores=cellfun(handle,obj.node_match_scores,obj.node_compatibilities,obj.edge_compatibilities);
             s=sum(obj.component_scores,2);
@@ -91,6 +139,7 @@ classdef sprMDL < handle
             obj. sample_component_matching_probs=obj.component_scores./n;
         end
         
+        % get the graph matching score for each sample-componennt pair
         function graphMatching(obj)
             obj.node_match_scores = cell([obj.number_of_sample,obj.number_of_components]);
             obj.node_compatibilities = cell(size(obj.node_match_scores));

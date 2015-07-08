@@ -3,7 +3,7 @@ classdef ARG < handle
     %	a list of node
     %   We have a E_arg(M) that we want to minimize
     
-    properties (GetAccess=public,SetAccess=private)
+    properties (GetAccess=public,SetAccess=protected)
         num_nodes = NaN;
         nodes = {};
         edges = {};

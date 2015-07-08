@@ -1,8 +1,9 @@
 classdef mdl_edge < edge
     % mdl_edge is a subclass of edge which will be used in the mdl_ARG
     
-    properties (GetAccess=public,SetAccess=private)
+    properties (GetAccess=public,SetAccess=protected)
         cov=NaN;
+        cov_inv = NaN;
     end
     
     methods
@@ -18,6 +19,7 @@ classdef mdl_edge < edge
             
             % Initial covariance matrix as an identtiy matrix
             obj.cov = eye(length(atrs));
+            obj.cov_inv=inv(obj.cov);
         end
         
         % Update Mean

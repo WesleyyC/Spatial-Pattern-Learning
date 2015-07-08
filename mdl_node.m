@@ -1,8 +1,9 @@
 classdef mdl_node < node
     % mdl_node is a subclass of node which will be used in the mdl_ARG
     
-    properties (GetAccess=public,SetAccess=private)
+    properties (GetAccess=public,SetAccess=protected)
         cov=NaN;
+        cov_inv = NaN;
         frequency = NaN;
     end
     
@@ -19,6 +20,7 @@ classdef mdl_node < node
             
             % Initial covariance matrix as an identtiy matrix
             obj.cov = eye(length(atrs));
+            obj.cov_inv=inv(obj.cov);
             
             % Initial frequency
             obj.frequency = frequency;
@@ -27,11 +29,13 @@ classdef mdl_node < node
         function updateFrequency(obj,freq)
             obj.frequency = freq;
         end
+    
+        % Update Mean
+        function updateAtrs(obj,atrs)
+            obj.atrs = atrs;
+        end
+
+        % Update Covariance Matrix
     end
-    
-    % Update Mean
-        
-    % Update Covariance Matrix
-    
 end
 
