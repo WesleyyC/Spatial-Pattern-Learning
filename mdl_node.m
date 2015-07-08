@@ -7,6 +7,11 @@ classdef mdl_node < node
         frequency = NaN;
     end
     
+    properties(Constant)
+        e_inv = 0.2;
+    end
+    
+    
     methods
         % Constructor for the class
         function  obj = mdl_node(ID,atrs,frequency)
@@ -36,6 +41,21 @@ classdef mdl_node < node
         end
 
         % Update Covariance Matrix
+        function updateCov(obj,cov)
+            obj.cov = cov;
+            obj.cov_inv = mdl_node.inverse(obj.cov);
+        end
+    end
+    
+    methods(Static)
+        function cov_inv = inverse(mat)
+            if rcond(mat) < mdl_node.e_inv
+                mat=mat+eye(size(mat));
+                cov_inv = mdl_node.inverse(mat);
+            else
+                cov_inv = inv(mat);
+            end 
+        end
     end
 end
 

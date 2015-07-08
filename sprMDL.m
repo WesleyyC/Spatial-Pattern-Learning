@@ -69,6 +69,39 @@ classdef sprMDL < handle
             obj.updateComponentNodeFrequency();
             % update the atrs for each component node
             obj.updateComponentNodeAtrs();
+            % update the covariance matrix for each component node
+            obj.updateComponentNodeCov();
+        end
+        
+        % update the covariance matrix for each component node
+        % # this function can be easier, but I can think of a better way to
+        % do this yet since atrs can be vector and cell operation is not
+        % fast/easy
+        function updateComponentNodeCov(obj)
+            % for each component
+            for i = 1:obj.number_of_components
+                % for each node
+                for n = 1:obj.mdl_ARGs{i}.num_nodes
+                    atrs = 0;
+                    denominator=0;
+                    % we go over the sample
+                    for j = 1:obj.number_of_sample
+                        current_sample_atrs = 0;
+                        current_sample_denominator = 0;
+                        % and finds its matching node, calculate the
+                        % average atrs
+                        for v =  1:obj.sampleARGs{j}.num_nodes
+                            x_atrs = obj.sampleARGs{j}.nodes{v}.atrs-obj.mdl_ARGs{i}.nodes{n}.atrs;
+                            current_sample_atrs=current_sample_atrs+x_atrs'*x_atrs*obj.node_match_scores{j,i}(v,n);
+                            current_sample_denominator = current_sample_denominator + obj.node_match_scores{j,i}(v,n);
+                        end
+                        atrs = atrs + current_sample_atrs*obj.sample_component_matching_probs(j,i);
+                        denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(j,i);
+                    end
+                    % udpate the value
+                    obj.mdl_ARGs{i}.nodes{n}.updateCov(atrs/denominator);
+                end
+            end       
         end
         
         % update the atrs for each component node
