@@ -8,8 +8,8 @@ clear
 
 num_nodes = 3;
 links = {[1,2],[2,3],[3,1]};
-%weight = [10,5,2];
-weight = [1,1,1];
+weight = [10,5,2];
+%weight = [1,1,1];
 
 M=zeros(num_nodes);
 
@@ -32,8 +32,8 @@ ARG1 = ARG(M,nodes_atrs);
 
 num_nodes = 5;
 links = {[1,2],[2,3],[3,1],[2,4],[4,5],[3,5]};
-%weight = [10,5,2,30,1,100];
-weight = [1,1,1,1,1,1];
+weight = [10,5,2,30,1,100];
+%weight = [1,1,1,1,1,1];
 
 M=zeros(num_nodes);
 

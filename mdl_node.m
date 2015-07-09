@@ -48,6 +48,7 @@ classdef mdl_node < node
     end
     
     methods(Static)
+        % In case there is a singularity problem
         function cov_inv = inverse(mat)
             if rcond(mat) < mdl_node.e_inv
                 mat=mat+eye(size(mat));

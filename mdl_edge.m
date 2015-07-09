@@ -23,8 +23,27 @@ classdef mdl_edge < edge
         end
         
         % Update Mean
+        function updateAtrs(obj,atrs)
+            obj.atrs = atrs;
+        end
         
         % Update Covariance Matrix
+        function updateCov(obj,cov)
+            obj.cov = cov;
+            obj.cov_inv = mdl_node.inverse(obj.cov);
+        end
+    end
+    
+    methods(Static)
+        % In case there is a singularity problem
+        function cov_inv = inverse(mat)
+            if rcond(mat) < mdl_node.e_inv
+                mat=mat+eye(size(mat));
+                cov_inv = mdl_node.inverse(mat);
+            else
+                cov_inv = inv(mat);
+            end 
+        end
     end
     
 end

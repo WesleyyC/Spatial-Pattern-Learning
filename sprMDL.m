@@ -1,4 +1,4 @@
-classdef sprMDL < handle
+classdef sprMDL < handle & matlab.mixin.Copyable
     %   SpatialPatternMDL is a generalization model of a kind of spatail
     %   pattern providing by a set of sample ARGs.
     
@@ -26,6 +26,16 @@ classdef sprMDL < handle
         component_scores = NaN;
         sample_component_matching_probs=NaN;
         
+        % threshold score for confirming pattern
+        thredshold_score = NaN;
+        
+    end
+    
+    properties (Constant)
+        % Maximum EM rounds
+        iteration_EM = 30;
+        % Converging epsilon
+        e_mdl_converge = 1e-4;
     end
     
     methods
@@ -56,9 +66,51 @@ classdef sprMDL < handle
             comp_ARG = sampleARGs(idx);
             % Now convert it to model ARG
             obj.mdl_ARGs=cellfun(@mdl_ARG,comp_ARG,'UniformOutput',false); 
+            
+            % Train the model with the sample
+            obj.trainModel();
         end
         
-        function EM(obj)
+        % Detect if a ARG has the same pattern
+        function tf = samePattern(obj, ARG)
+            score = 0;
+            for i = 1:obj.number_of_components
+               [node_match_score,node_compatibility,edge_compatibility]=graph_matching(ARG,obj.mdl_ARGs{i});
+                score = score + ...
+                    sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility) * obj.weight(i);
+            end
+            tf = score>=obj.thredshold_score;
+        end
+        
+        % Get the thredshold score for confimrming pattern
+        function getThredsholdScore(obj)
+            scores = obj.component_scores.*repmat(obj.weight,obj.number_of_sample,1);
+            scores = sum(scores,2);
+            obj.thredshold_score = min(scores)*0.99;
+        end
+            
+        % Train the model with the sample
+        function trainModel(obj)
+            % Set up variable
+            converge = false;
+            iter = 0;
+            % EM iteration
+            while ~converge && iter<obj.iteration_EM
+                % increment the iter
+                iter = iter+1;
+                % get the old obj before iteration for testing converging
+                old_obj = obj.copy();
+                % go through one EM iteration
+                obj.EM();
+                % check converging condition
+                converge = mdl_converge(old_obj,obj,obj.e_mdl_converge);
+            end
+            % get the thredshold minimum score
+            obj.getThredsholdScore();
+        end
+        
+        % The EM-alogirthem procedure
+        function EM(obj)     
             % get the node matching score
             obj.graphMatching();
             % get the sample-component matching score and probability
@@ -71,6 +123,78 @@ classdef sprMDL < handle
             obj.updateComponentNodeAtrs();
             % update the covariance matrix for each component node
             obj.updateComponentNodeCov();
+            % update the atrs for each component edge
+            obj.updateComponentEdgeAtrs();
+            % update the covariance matrix for each component edge
+            obj.updateComponentEdgeCov();    
+        end
+        
+        % Edge updating can be done using a list of component instead of traversing
+        % all the nodes with SIX nested for loop. But this version is easier to code so we will
+        % start it from here.
+        
+        % update the atrs for each component edge
+        function updateComponentEdgeAtrs(obj)
+            %for each component
+            for h = 1:obj.number_of_components
+                %for each edge 
+                for o = 1:obj.mdl_ARGs{h}.num_nodes
+                    for t = 1:obj.mdl_ARGs{h}.num_nodes
+                        atrs = 0;
+                        denominator=0;
+                        %for each sample
+                        for i = 1:obj.number_of_sample
+                            current_sample_atrs = 0;
+                            current_sample_denominator = 0;
+                            %for each edge in sample
+                            for c =  1:obj.sampleARGs{i}.num_nodes
+                                for d =  1:obj.sampleARGs{i}.num_nodes
+                                    current_sample_atrs=current_sample_atrs+...
+                                        obj.sampleARGs{i}.edges{c,d}.atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                    current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                end
+                            end
+                            atrs=atrs+current_sample_atrs*obj.sample_component_matching_probs(i,h);
+                            denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
+                        end
+                        % update the value
+                        obj.mdl_ARGs{h}.edges{o,t}.updateAtrs(atrs/denominator);
+                    end
+                end
+            end                     
+        end
+        
+        % update the covariance matrix for each component edge
+        function updateComponentEdgeCov(obj)
+            %for each component
+            for h = 1:obj.number_of_components
+                %for each edge 
+                for o = 1:obj.mdl_ARGs{h}.num_nodes
+                    for t = 1:obj.mdl_ARGs{h}.num_nodes
+                        cov = 0;
+                        denominator=0;
+                        %for each sample
+                        for i = 1:obj.number_of_sample
+                            current_sample_cov = 0;
+                            current_sample_denominator = 0;
+                            %for each edge in sample
+                            for c =  1:obj.sampleARGs{i}.num_nodes
+                                for d =  1:obj.sampleARGs{i}.num_nodes
+                                    z_atrs=obj.sampleARGs{i}.edges{c,d}.atrs-obj.mdl_ARGs{h}.edges{o,t}.atrs;
+                                    current_sample_cov=current_sample_cov+...
+                                        z_atrs'*z_atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                    current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                end
+                            end
+                            cov=cov+current_sample_cov*obj.sample_component_matching_probs(i,h);
+                            denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
+                        end
+                        % update the value
+                        obj.mdl_ARGs{h}.edges{o,t}.updateCov(cov/denominator);
+                    end
+                end
+            end     
+            
         end
         
         % update the covariance matrix for each component node
@@ -82,24 +206,24 @@ classdef sprMDL < handle
             for i = 1:obj.number_of_components
                 % for each node
                 for n = 1:obj.mdl_ARGs{i}.num_nodes
-                    atrs = 0;
+                    cov = 0;
                     denominator=0;
                     % we go over the sample
                     for j = 1:obj.number_of_sample
-                        current_sample_atrs = 0;
+                        current_sample_cov = 0;
                         current_sample_denominator = 0;
                         % and finds its matching node, calculate the
                         % average atrs
                         for v =  1:obj.sampleARGs{j}.num_nodes
                             x_atrs = obj.sampleARGs{j}.nodes{v}.atrs-obj.mdl_ARGs{i}.nodes{n}.atrs;
-                            current_sample_atrs=current_sample_atrs+x_atrs'*x_atrs*obj.node_match_scores{j,i}(v,n);
+                            current_sample_cov=current_sample_cov+x_atrs'*x_atrs*obj.node_match_scores{j,i}(v,n);
                             current_sample_denominator = current_sample_denominator + obj.node_match_scores{j,i}(v,n);
                         end
-                        atrs = atrs + current_sample_atrs*obj.sample_component_matching_probs(j,i);
+                        cov = cov + current_sample_cov*obj.sample_component_matching_probs(j,i);
                         denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(j,i);
                     end
                     % udpate the value
-                    obj.mdl_ARGs{i}.nodes{n}.updateCov(atrs/denominator);
+                    obj.mdl_ARGs{i}.nodes{n}.updateCov(cov/denominator);
                 end
             end       
         end
