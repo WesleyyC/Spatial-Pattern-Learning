@@ -45,7 +45,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             % Throw error if not enough argument
             if nargin < 1
                 error "NotEnoughArgument";
-            elseif length(sampleARGs)>number_of_components
+            elseif length(sampleARGs)<number_of_components
                 error "NotEnoughSample"
             end
             
@@ -71,8 +71,51 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             obj.trainModel();
         end
         
+        % if has the same pattern, return a new ARG which is the partial
+        % ARG from the original ARG that has the similar pattern
+        function pattern = getSamePattern(obj,testARG)
+            % if the original ARG has the similar pattern
+            if obj.checkSamePattern(testARG)
+                % get the sample-components weight
+                sample_component_weight = zeros([1,obj.number_of_components]);
+                for i = 1:obj.number_of_components
+                    [node_match_score,node_compatibility,edge_compatibility]=graph_matching(testARG,obj.mdl_ARGs{i});
+                    sample_component_weight(i)=...
+                        sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility) * obj.weight(i);
+                end
+                % normalize to one
+                sample_component_weight=sample_component_weight/sum(sample_component_weight);
+                
+                % ge each nodes score
+                nodes_score = 0;
+                for i = 1:obj.number_of_components
+                    node_match_score=graph_matching(testARG,obj.mdl_ARGs{i});
+                    node_match_score = node_match_score.*repmat(obj.mdl_ARGs{i}.getNodeFrequency(),testARG.num_nodes,1);
+                    node_match_score = sum(node_match_score,2)';
+                    nodes_score = nodes_score+node_match_score*obj.weight(i)*sample_component_weight(i);
+                end
+                
+                % setting up selection thredshol
+                getSampleNodeHandle = @(sample)sample.num_nodes;
+                totalSampleNode = sum(cellfun(getSampleNodeHandle,obj.sampleARGs));
+                e_node_selection = 0.95*obj.number_of_sample/(obj.number_of_components*totalSampleNode);
+                
+                % select node
+                idx = find(nodes_score >= e_node_selection);
+                % get the building structure
+                patternM = testARG.matrix(idx,idx);
+                patternAtrs = testARG.atrs_vector(idx);
+                % build a new ARG for represented-pattern
+                pattern = ARG(patternM,patternAtrs);
+                
+            else
+                pattern = NaN;                
+            end
+                
+        end
+        
         % Detect if a ARG has the same pattern
-        function tf = samePattern(obj, ARG)
+        function tf = checkSamePattern(obj, ARG)
             score = 0;
             for i = 1:obj.number_of_components
                [node_match_score,node_compatibility,edge_compatibility]=graph_matching(ARG,obj.mdl_ARGs{i});

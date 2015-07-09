@@ -45,7 +45,12 @@ classdef mdl_ARG < handle
             for i =1:obj.num_nodes
                 obj.nodes{i}.updateFrequency(frequencies(i));
             end
-        end     
+        end
+        
+        function frequencies = getNodeFrequency(obj)
+           getFrequency = @(node)node.frequency;
+           frequencies=cellfun(getFrequency,obj.nodes);
+        end
     end
     
 end

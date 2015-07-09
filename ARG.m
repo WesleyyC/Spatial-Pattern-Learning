@@ -8,7 +8,7 @@ classdef ARG < handle
         nodes = {};
         edges = {};
         matrix = NaN;
-        
+        atrs_vector = NaN;
     end
     
     methods
@@ -55,6 +55,7 @@ classdef ARG < handle
             end
             
             self.matrix = M;
+            self.atrs_vector = nodes_atrs;
 
         end
         
