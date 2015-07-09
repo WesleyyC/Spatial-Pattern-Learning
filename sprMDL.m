@@ -1,7 +1,6 @@
 classdef sprMDL < handle & matlab.mixin.Copyable
     %   SpatialPatternMDL is a generalization model of a kind of spatail
-    %   pattern providing by a set of sample ARGs.
-    
+    %   pattern providing by a set of sample ARGs   
     
     properties
         % Important number in model
