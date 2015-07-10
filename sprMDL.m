@@ -181,7 +181,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             for h = 1:obj.number_of_components
                 %for each edge 
                 for o = 1:obj.mdl_ARGs{h}.num_nodes
-                    for t = 1:obj.mdl_ARGs{h}.num_nodes
+                    for t = o+1:obj.mdl_ARGs{h}.num_nodes
                         atrs = 0;
                         denominator=0;
                         %for each sample
@@ -201,6 +201,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                         end
                         % update the value
                         obj.mdl_ARGs{h}.edges{o,t}.updateAtrs(atrs/denominator);
+                        obj.mdl_ARGs{h}.edges{t,o}.updateAtrs(atrs/denominator);
                     end
                 end
             end                     
@@ -212,7 +213,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             for h = 1:obj.number_of_components
                 %for each edge 
                 for o = 1:obj.mdl_ARGs{h}.num_nodes
-                    for t = 1:obj.mdl_ARGs{h}.num_nodes
+                    for t = o+1:obj.mdl_ARGs{h}.num_nodes
                         cov = 0;
                         denominator=0;
                         %for each sample
@@ -233,6 +234,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                         end
                         % update the value
                         obj.mdl_ARGs{h}.edges{o,t}.updateCov(cov/denominator);
+                        obj.mdl_ARGs{h}.edges{t,o}.updateCov(cov/denominator);
                     end
                 end
             end     
