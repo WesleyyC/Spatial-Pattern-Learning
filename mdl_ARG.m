@@ -17,10 +17,10 @@ classdef mdl_ARG < handle
             end
             
             % Get the number of nodes
-            self.num_nodes=ARG.num_nodes;
+            self.num_nodes=ARG.num_nodes+1;
             
             % Allocate memory for nodes and edges
-            self.nodes = cell(1,self.num_nodes+1);
+            self.nodes = cell(1,self.num_nodes);
             self.edges = cell(self.num_nodes,self.num_nodes);
             
             % Initial frequency to 1
@@ -28,17 +28,19 @@ classdef mdl_ARG < handle
             
             % Convert ARG node to mdl_node
             mdl_node_handle=@(node)mdl_node(node.ID,node.atrs,freq);
-            self.nodes = cellfun(mdl_node_handle,ARG.nodes,'UniformOutput',false);
-            
-%             % This should not be include in the graph matching, but there
-%             % should be a way to incoprate this.
-%             % Set an null node for backgroudn matching to the end of nodes
-%             self.nodes{self.num_nodes+1}=mdl_node(self.num_nodes+1,NaN,freq);
-%             self.num_nodes = self.num_nodes+1;
+            self.nodes(1:self.num_nodes-1) = cellfun(mdl_node_handle,ARG.nodes,'UniformOutput',false);
             
             % Convert ARG edge to mdl_edge
             mdl_edge_handle=@(edge)mdl_edge(edge.atrs,edge.node1ID,edge.node2ID,self.nodes);
-            self.edges = cellfun(mdl_edge_handle,ARG.edges,'UniformOutput',false);    
+            self.edges(1:self.num_nodes-1,1:self.num_nodes-1) = cellfun(mdl_edge_handle,ARG.edges,'UniformOutput',false);
+            
+            % Add null for background
+            self.nodes{self.num_nodes} = mdl_node(self.num_nodes,0,freq);
+            for i=1:self.num_nodes
+                self.edges{self.num_nodes,i}=mdl_edge(0,self.num_nodes,i,self.nodes);
+                self.edges{i,self.num_nodes}=mdl_edge(0,i,self.num_nodes,self.nodes);
+            end
+                
         end
         
         function updateNodeFrequency(obj,frequencies)

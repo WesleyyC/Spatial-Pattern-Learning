@@ -10,6 +10,8 @@ function [c] = edge_compatibility(edge, mdl_edge)
         return;  % if either of the edge does not exist or has NaN attribute
     elseif edge.numberOfAtrs() ~= mdl_edge.numberOfAtrs()    
         return;  % if the nodes have different number of attributes, set similarity to 0
+    elseif edge.atrs == 0 || mdl_edge.atrs == 0
+        return;
     else
         
         % get number of attributes

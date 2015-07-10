@@ -7,7 +7,7 @@ clear
 %% Set up the testing pattern
 
 % Pattern Size
-pattern_size = 8;
+pattern_size = 5;
 pattern_connected_rate = 0.8;
 % Node 
 node_atr_size = 1;
@@ -29,9 +29,9 @@ pattern_nodes_atrs = rand([1,pattern_size])*node_atr_weight_range;
 %% Set up the testing sample
 
 % Number of Sample
-number_of_testing_samples = 20;
+number_of_testing_samples = 10;
 % Set up the sample size range
-maximum_sample_size = 20;
+maximum_sample_size = 10;
 size_range = pattern_size:maximum_sample_size;
 % Set up the sample connected rate
 sample_connected_rate = pattern_connected_rate;
@@ -73,6 +73,8 @@ for i = 1:number_of_testing_samples
     sampleM = sampleM(idx,idx);
     sample_nodes_atrs = sample_nodes_atrs(idx);
     
+    % Make zero to
+    
     % Build up the sample ARG
     samples{i} = ARG(sampleM, sample_nodes_atrs);
 end
@@ -85,4 +87,4 @@ trainStart=tic();
 
 mdl = sprMDL(samples,number_of_component);
 
-toc(loopStart);
+toc(trainStart);

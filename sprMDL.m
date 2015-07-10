@@ -359,14 +359,12 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         % scoring for each sample-component pair
         function score = component_score(node_match_score,node_compatibility,edge_compatibility)
            % calculate the prob from the nodes part
-           score = sum(sum(bsxfun(@times,node_match_score,node_compatibility)));
-           
+           score = sum(sum(node_match_score.*node_compatibility));           
            % calculate the prob from the edges part
-           % #this only feels right, but might need a fresh eye to check on
-           % it
            edge_times_handle = @(mat)sum(sum(bsxfun(@times,node_match_score,mat)));
            first_time = cellfun(edge_times_handle,edge_compatibility);
-           score = score + sum(sum(bsxfun(@times,first_time,node_match_score)));         
+           % add both part together
+           score = score + sum(sum(first_time.*node_match_score));         
         end
        
     end
