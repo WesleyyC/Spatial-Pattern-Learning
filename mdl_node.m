@@ -9,6 +9,7 @@ classdef mdl_node < node
     
     properties(Constant)
         e_inv = 0.2;
+        conv_eye = 0.1;
     end
     
     
@@ -51,7 +52,7 @@ classdef mdl_node < node
         % In case there is a singularity problem
         function cov_inv = inverse(mat)
             if rcond(mat) < mdl_node.e_inv
-                mat=mat+eye(size(mat));
+                mat=mat+eye(size(mat))*mean2(mat)*mdl_node.conv_eye;
                 cov_inv = mdl_node.inverse(mat);
             else
                 cov_inv = inv(mat);
