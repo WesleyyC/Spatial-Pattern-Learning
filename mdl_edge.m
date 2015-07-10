@@ -6,6 +6,11 @@ classdef mdl_edge < edge
         cov_inv = NaN;
     end
     
+    properties(Constant)
+        e_inv = 0.2;
+        conv_eye = 0.1;
+    end
+    
     methods
         % Constructor for the class
         function  obj = mdl_edge(atrs,node1ID,node2ID,sortedNodes)
@@ -37,9 +42,9 @@ classdef mdl_edge < edge
     methods(Static)
         % In case there is a singularity problem
         function cov_inv = inverse(mat)
-            if rcond(mat) < mdl_node.e_inv
-                mat=mat+eye(size(mat));
-                cov_inv = mdl_node.inverse(mat);
+            if rcond(mat) < mdl_edge.e_inv
+                mat=mat+eye(size(mat))*mean2(mat)*mdl_edge.conv_eye;
+                cov_inv = mdl_edge.inverse(mat);
             else
                 cov_inv = inv(mat);
             end 

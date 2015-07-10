@@ -2,6 +2,8 @@ classdef sprMDL < handle & matlab.mixin.Copyable
     %   SpatialPatternMDL is a generalization model of a kind of spatail
     %   pattern providing by a set of sample ARGs   
     
+    %   assume null value is 0
+    
     properties
         % Important number in model
         number_of_components = NaN;
@@ -128,7 +130,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         function getThredsholdScore(obj)
             scores = obj.component_scores.*repmat(obj.weight,obj.number_of_sample,1);
             scores = sum(scores,2);
-            obj.thredshold_score = min(scores)*0.99;
+            obj.thredshold_score = min(scores);
         end
             
         % Train the model with the sample
@@ -191,9 +193,11 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                             %for each edge in sample
                             for c =  1:obj.sampleARGs{i}.num_nodes
                                 for d =  1:obj.sampleARGs{i}.num_nodes
-                                    current_sample_atrs=current_sample_atrs+...
-                                        obj.sampleARGs{i}.edges{c,d}.atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
-                                    current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                    if any(obj.sampleARGs{i}.edges{c,d}.atrs)
+                                        current_sample_atrs=current_sample_atrs+...
+                                            obj.sampleARGs{i}.edges{c,d}.atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                        current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                    end
                                 end
                             end
                             atrs=atrs+current_sample_atrs*obj.sample_component_matching_probs(i,h);
@@ -223,10 +227,12 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                             %for each edge in sample
                             for c =  1:obj.sampleARGs{i}.num_nodes
                                 for d =  1:obj.sampleARGs{i}.num_nodes
-                                    z_atrs=obj.sampleARGs{i}.edges{c,d}.atrs-obj.mdl_ARGs{h}.edges{o,t}.atrs;
-                                    current_sample_cov=current_sample_cov+...
-                                        z_atrs'*z_atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
-                                    current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                    if any(obj.sampleARGs{i}.edges{c,d}.atrs) && any(obj.mdl_ARGs{h}.edges{o,t}.atrs)
+                                        z_atrs=obj.sampleARGs{i}.edges{c,d}.atrs-obj.mdl_ARGs{h}.edges{o,t}.atrs;
+                                        current_sample_cov=current_sample_cov+...
+                                            z_atrs'*z_atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                        current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                    end
                                 end
                             end
                             cov=cov+current_sample_cov*obj.sample_component_matching_probs(i,h);
@@ -259,9 +265,11 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                         % and finds its matching node, calculate the
                         % average atrs
                         for v =  1:obj.sampleARGs{j}.num_nodes
-                            x_atrs = obj.sampleARGs{j}.nodes{v}.atrs-obj.mdl_ARGs{i}.nodes{n}.atrs;
-                            current_sample_cov=current_sample_cov+x_atrs'*x_atrs*obj.node_match_scores{j,i}(v,n);
-                            current_sample_denominator = current_sample_denominator + obj.node_match_scores{j,i}(v,n);
+                            if any(obj.sampleARGs{j}.nodes{v}.atrs) && any(obj.mdl_ARGs{i}.nodes{n}.atrs)
+                                x_atrs = obj.sampleARGs{j}.nodes{v}.atrs-obj.mdl_ARGs{i}.nodes{n}.atrs;
+                                current_sample_cov=current_sample_cov+x_atrs'*x_atrs*obj.node_match_scores{j,i}(v,n);
+                                current_sample_denominator = current_sample_denominator + obj.node_match_scores{j,i}(v,n);
+                            end
                         end
                         cov = cov + current_sample_cov*obj.sample_component_matching_probs(j,i);
                         denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(j,i);
@@ -290,8 +298,10 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                         % and finds its matching node, calculate the
                         % average atrs
                         for v =  1:obj.sampleARGs{j}.num_nodes
-                            current_sample_atrs=current_sample_atrs+obj.sampleARGs{j}.nodes{v}.atrs*obj.node_match_scores{j,i}(v,n);
-                            current_sample_denominator = current_sample_denominator + obj.node_match_scores{j,i}(v,n);
+                            if any(obj.sampleARGs{j}.nodes{v}.atrs)
+                                current_sample_atrs=current_sample_atrs+obj.sampleARGs{j}.nodes{v}.atrs*obj.node_match_scores{j,i}(v,n);
+                                current_sample_denominator = current_sample_denominator + obj.node_match_scores{j,i}(v,n);
+                            end
                         end
                         atrs = atrs + current_sample_atrs*obj.sample_component_matching_probs(j,i);
                         denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(j,i);
