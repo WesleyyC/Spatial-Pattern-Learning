@@ -191,9 +191,10 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                     av_frequency=av_frequency+current_freq*obj.sample_component_matching_probs(j,w);
                     prob_sum=prob_sum+obj.sample_component_matching_probs(j,w);
                 end
-                % modify structure
-                node_frequency = av_frequency/prob_sum;
-                deleteIdx = node_frequency < 1-obj.e_delete^iter;
+                % get the average matching probability
+                av_matching_prob = av_frequency/prob_sum;
+                % delet the node that is less tha the threshold 1-e^iter
+                deleteIdx = av_matching_prob < 1-obj.e_delete^iter;
                 obj.mdl_ARGs{w}.modifyStructure(deleteIdx);
             end
         end

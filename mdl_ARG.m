@@ -43,12 +43,14 @@ classdef mdl_ARG < handle
                 
         end
         
+        % update the nodes frequency in the model
         function updateNodeFrequency(obj,frequencies)
             for i =1:obj.num_nodes
                 obj.nodes{i}.updateFrequency(frequencies(i));
             end
         end
         
+        % delete nodes in the model according to the given indexes
         function modifyStructure(obj,deletingNodes)
             obj.nodes(deletingNodes)=[];
             obj.edges(deletingNodes,:)=[];
@@ -56,6 +58,7 @@ classdef mdl_ARG < handle
             obj.num_nodes=obj.num_nodes-length(find(deletingNodes));
         end
         
+        % return a vector of nodes frequency
         function frequencies = getNodeFrequency(obj)
            getFrequency = @(node)node.frequency;
            frequencies=cellfun(getFrequency,obj.nodes);
