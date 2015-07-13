@@ -37,6 +37,8 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         iteration_EM = 30;
         % Converging epsilon
         e_mdl_converge = 1e-4;
+        % Node deleting threshold
+        e_delete = 0.5;
     end
     
     methods
@@ -145,7 +147,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 % get the old obj before iteration for testing converging
                 old_obj = obj.copy();
                 % go through one EM iteration
-                obj.EM();
+                obj.EM(iter);
                 % check converging condition
                 converge = mdl_converge(old_obj,obj,obj.e_mdl_converge);
             end
@@ -154,7 +156,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         end
         
         % The EM-alogirthem procedure
-        function EM(obj)     
+        function EM(obj,iter)     
             % get the node matching score
             obj.graphMatching();
             % get the sample-component matching score and probability
@@ -170,7 +172,30 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             % update the atrs for each component edge
             obj.updateComponentEdgeAtrs();
             % update the covariance matrix for each component edge
-            obj.updateComponentEdgeCov();    
+            obj.updateComponentEdgeCov();
+            % update the component structure depends on the node frequency
+            obj.updateComponentStructure(iter);
+        end
+        
+        % update the component structure depends on the node frequency
+        function updateComponentStructure(obj,iter)
+            % for each component
+            for w = 1:obj.number_of_components
+                av_frequency=0;
+                prob_sum = 0;
+                % for each sample
+                for j = 1:obj.number_of_sample
+                    % we calculate the component node frequency in this
+                    % specific sample
+                    current_freq =sum(obj.node_match_scores{j,w});
+                    av_frequency=av_frequency+current_freq*obj.sample_component_matching_probs(j,w);
+                    prob_sum=prob_sum+obj.sample_component_matching_probs(j,w);
+                end
+                % modify structure
+                node_frequency = av_frequency/prob_sum;
+                deleteIdx = node_frequency < 1-obj.e_delete^iter;
+                obj.mdl_ARGs{w}.modifyStructure(deleteIdx);
+            end
         end
         
         % Edge updating can be done using a list of component instead of traversing

@@ -49,6 +49,13 @@ classdef mdl_ARG < handle
             end
         end
         
+        function modifyStructure(obj,deletingNodes)
+            obj.nodes(deletingNodes)=[];
+            obj.edges(deletingNodes,:)=[];
+            obj.edges(:,deletingNodes)=[];
+            obj.num_nodes=obj.num_nodes-length(find(deletingNodes));
+        end
+        
         function frequencies = getNodeFrequency(obj)
            getFrequency = @(node)node.frequency;
            frequencies=cellfun(getFrequency,obj.nodes);
