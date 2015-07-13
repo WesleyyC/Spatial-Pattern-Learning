@@ -31,7 +31,7 @@ classdef edge < handle
         
         % check if such edge exist
         function [tf] = exist(obj)
-            tf=all(~isnan(obj.atrs));
+            tf=any(obj.atrs);
         end
         
         % Get number of attributes

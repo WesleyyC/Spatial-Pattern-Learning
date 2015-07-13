@@ -9,8 +9,6 @@ function [c] = node_compatibility(node, mdl_node)
         return;  % if either of the nodes has NaN attribute, set similarity to 0
     elseif node.numberOfAtrs() ~= mdl_node.numberOfAtrs()    
         return;  % if the nodes have different number of attributes, set similarity to 0
-    elseif node.atrs == 0 || mdl_node.atrs == 0
-        return;
     else
         
         % get number of attributes

@@ -21,7 +21,7 @@ for i = 1:length(links)
     M(node2,node1)=weight(i); %Symmetric
 end
 
-nodes_atrs = [1,10,20];
+nodes_atrs = {[1,3],[2,10],[20,7]};
 %nodes_atrs = NaN;
 
 %% Build the 1st ARG
@@ -45,7 +45,7 @@ for i = 1:length(links)
     M(node2,node1)=weight(i); %Symmetric
 end
 
-nodes_atrs = [1,10,20,50,30];
+nodes_atrs = {[1,3],[2,10],[20,7],[50,100],[30,204]};
 %nodes_atrs = NaN;
 %% Build the 2nd ARG
 

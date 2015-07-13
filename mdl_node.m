@@ -8,7 +8,7 @@ classdef mdl_node < node
     end
     
     properties(Constant)
-        e_inv = 0.2;
+        e_inv = 0.1;
         conv_eye = 0.1;
     end
     

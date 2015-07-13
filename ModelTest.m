@@ -38,7 +38,7 @@ sample_connected_rate = pattern_connected_rate;
 % Preallocate samples cell array
 samples=cell([1,number_of_testing_samples]);
 % Noise Level
-noise_rate = 0.1;
+noise_rate = 0;
 
 for i = 1:number_of_testing_samples
     % Permute pattern
@@ -76,7 +76,7 @@ for i = 1:number_of_testing_samples
     % Make zero to
     
     % Build up the sample ARG
-    samples{i} = ARG(sampleM, sample_nodes_atrs);
+    samples{i} = ARG(sampleM, num2cell(sample_nodes_atrs));
 end
 
 %% Generate a model
