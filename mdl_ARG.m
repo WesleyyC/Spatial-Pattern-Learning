@@ -77,7 +77,7 @@ classdef mdl_ARG < handle
             M = cellfun(getEdgeAttributes,obj.edges);
             
             % draw it out
-            bg = biograph(sparse(triu(M)),[],'ShowArrows','off','ShowWeights','on');
+            bg = biograph(triu(M(1:end-1,1:end-1)),[],'ShowArrows','off','ShowWeights','on');
 
             model_struct = struct(  'Nf',nodes_frequence,... % the node frequency
                                     'Na', nodes_attributes, ... % the node attributes

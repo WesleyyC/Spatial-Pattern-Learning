@@ -93,15 +93,10 @@ toc(trainStart);
 detect_pattern = mdl.checkSamePattern(ARG(pattern,num2cell(pattern_nodes_atrs)))
 
 pattern_bg = biograph(sparse(triu(pattern)),[],'ShowArrows','off','ShowWeights','on');
-subplot_size = round(log(number_of_component)) + 1;
 
-figure
-subplot(subplot_size,subplot_size,1)
 view(pattern_bg)
-title('Original Pattern')
 
 for i = 1:number_of_component
-    subplot(subplot_size,subplot_size,i+1)
     view(mdl.mdl_ARGs{i}.showARG.bg)
 end
 
