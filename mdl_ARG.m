@@ -63,6 +63,29 @@ classdef mdl_ARG < handle
            getFrequency = @(node)node.frequency;
            frequencies=cellfun(getFrequency,obj.nodes);
         end
+        
+        % show the model ARG in matrix
+        function model_struct = showARG(obj)
+            % get the nodes frequencies
+            nodes_frequence = obj.getNodeFrequency();
+            
+            % get the nodes attributes
+            getNodeAttributes = @(node)node.atrs;
+            nodes_attributes = cellfun(getNodeAttributes,obj.nodes);
+            % build the matrix
+            getEdgeAttributes = @(edge)edge.atrs;
+            M = cellfun(getEdgeAttributes,obj.edges);
+            
+            % draw it out
+            bg = biograph(sparse(triu(M)),[],'ShowArrows','off','ShowWeights','on');
+
+            model_struct = struct(  'Nf',nodes_frequence,... % the node frequency
+                                    'Na', nodes_attributes, ... % the node attributes
+                                    'M', M, ... % the matrix
+                                    'bg', bg...% the graph
+                                    );
+        end
+            
     end
     
 end

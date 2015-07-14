@@ -8,13 +8,13 @@ clear
 
 % Pattern Size
 pattern_size = 5;
-pattern_connected_rate = 0.8;
+pattern_connected_rate = 0.4;
 % Node 
 node_atr_size = 1;
-node_atr_weight_range =10;
+node_atr_weight_range =100;
 % Edge
 edge_atr_size = 1;
-edge_atr_weight_range =10;
+edge_atr_weight_range =100;
 
 % for edge_atr_size = 1
 
@@ -38,7 +38,7 @@ sample_connected_rate = pattern_connected_rate;
 % Preallocate samples cell array
 samples=cell([1,number_of_testing_samples]);
 % Noise Level
-noise_rate = 0;
+noise_rate = 0.1;
 
 for i = 1:number_of_testing_samples
     % Permute pattern
@@ -88,3 +88,20 @@ trainStart=tic();
 mdl = sprMDL(samples,number_of_component);
 
 toc(trainStart);
+
+%% Test Result
+detect_pattern = mdl.checkSamePattern(ARG(pattern,num2cell(pattern_nodes_atrs)))
+
+pattern_bg = biograph(sparse(triu(pattern)),[],'ShowArrows','off','ShowWeights','on');
+subplot_size = round(log(number_of_component)) + 1;
+
+figure
+subplot(subplot_size,subplot_size,1)
+view(pattern_bg)
+title('Original Pattern')
+
+for i = 1:number_of_component
+    subplot(subplot_size,subplot_size,i+1)
+    view(mdl.mdl_ARGs{i}.showARG.bg)
+end
+

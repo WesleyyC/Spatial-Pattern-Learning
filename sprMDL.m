@@ -195,6 +195,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 av_matching_prob = av_frequency/prob_sum;
                 % delet the node that is less tha the threshold 1-e^iter
                 deleteIdx = av_matching_prob < 1-obj.e_delete^iter;
+                deleteIdx(end)=0; % the null node will always be remained
                 obj.mdl_ARGs{w}.modifyStructure(deleteIdx);
             end
         end
@@ -210,28 +211,30 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 %for each edge 
                 for o = 1:obj.mdl_ARGs{h}.num_nodes
                     for t = o+1:obj.mdl_ARGs{h}.num_nodes
-                        atrs = 0;
-                        denominator=0;
-                        %for each sample
-                        for i = 1:obj.number_of_sample
-                            current_sample_atrs = 0;
-                            current_sample_denominator = 0;
-                            %for each edge in sample
-                            for c =  1:obj.sampleARGs{i}.num_nodes
-                                for d =  1:obj.sampleARGs{i}.num_nodes
-                                    if any(obj.sampleARGs{i}.edges{c,d}.atrs)
-                                        current_sample_atrs=current_sample_atrs+...
-                                            obj.sampleARGs{i}.edges{c,d}.atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
-                                        current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                        if any(obj.mdl_ARGs{h}.edges{o,t}.atrs)
+                            atrs = 0;
+                            denominator=0;
+                            %for each sample
+                            for i = 1:obj.number_of_sample
+                                current_sample_atrs = 0;
+                                current_sample_denominator = 0;
+                                %for each edge in sample
+                                for c =  1:obj.sampleARGs{i}.num_nodes
+                                    for d =  1:obj.sampleARGs{i}.num_nodes
+                                        if any(obj.sampleARGs{i}.edges{c,d}.atrs)
+                                            current_sample_atrs=current_sample_atrs+...
+                                                obj.sampleARGs{i}.edges{c,d}.atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                            current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                        end
                                     end
                                 end
+                                atrs=atrs+current_sample_atrs*obj.sample_component_matching_probs(i,h);
+                                denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
                             end
-                            atrs=atrs+current_sample_atrs*obj.sample_component_matching_probs(i,h);
-                            denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
+                            % update the value
+                            obj.mdl_ARGs{h}.edges{o,t}.updateAtrs(atrs/denominator);
+                            obj.mdl_ARGs{h}.edges{t,o}.updateAtrs(atrs/denominator);
                         end
-                        % update the value
-                        obj.mdl_ARGs{h}.edges{o,t}.updateAtrs(atrs/denominator);
-                        obj.mdl_ARGs{h}.edges{t,o}.updateAtrs(atrs/denominator);
                     end
                 end
             end                     
@@ -244,29 +247,31 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 %for each edge 
                 for o = 1:obj.mdl_ARGs{h}.num_nodes
                     for t = o+1:obj.mdl_ARGs{h}.num_nodes
-                        cov = 0;
-                        denominator=0;
-                        %for each sample
-                        for i = 1:obj.number_of_sample
-                            current_sample_cov = 0;
-                            current_sample_denominator = 0;
-                            %for each edge in sample
-                            for c =  1:obj.sampleARGs{i}.num_nodes
-                                for d =  1:obj.sampleARGs{i}.num_nodes
-                                    if any(obj.sampleARGs{i}.edges{c,d}.atrs) && any(obj.mdl_ARGs{h}.edges{o,t}.atrs)
-                                        z_atrs=obj.sampleARGs{i}.edges{c,d}.atrs-obj.mdl_ARGs{h}.edges{o,t}.atrs;
-                                        current_sample_cov=current_sample_cov+...
-                                            z_atrs'*z_atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
-                                        current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                        if any(obj.mdl_ARGs{h}.edges{o,t}.atrs)
+                            cov = 0;
+                            denominator=0;
+                            %for each sample
+                            for i = 1:obj.number_of_sample
+                                current_sample_cov = 0;
+                                current_sample_denominator = 0;
+                                %for each edge in sample
+                                for c =  1:obj.sampleARGs{i}.num_nodes
+                                    for d =  1:obj.sampleARGs{i}.num_nodes
+                                        if any(obj.sampleARGs{i}.edges{c,d}.atrs)
+                                            z_atrs=obj.sampleARGs{i}.edges{c,d}.atrs-obj.mdl_ARGs{h}.edges{o,t}.atrs;
+                                            current_sample_cov=current_sample_cov+...
+                                                z_atrs'*z_atrs*obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                            current_sample_denominator=current_sample_denominator+obj.node_match_scores{i,h}(c,o)*obj.node_match_scores{i,h}(d,t);
+                                        end
                                     end
                                 end
+                                cov=cov+current_sample_cov*obj.sample_component_matching_probs(i,h);
+                                denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
                             end
-                            cov=cov+current_sample_cov*obj.sample_component_matching_probs(i,h);
-                            denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
+                            % update the value
+                            obj.mdl_ARGs{h}.edges{o,t}.updateCov(cov/denominator);
+                            obj.mdl_ARGs{h}.edges{t,o}.updateCov(cov/denominator);
                         end
-                        % update the value
-                        obj.mdl_ARGs{h}.edges{o,t}.updateCov(cov/denominator);
-                        obj.mdl_ARGs{h}.edges{t,o}.updateCov(cov/denominator);
                     end
                 end
             end     
@@ -279,29 +284,31 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         % fast/easy
         function updateComponentNodeCov(obj)
             % for each component
-            for i = 1:obj.number_of_components
+            for h = 1:obj.number_of_components
                 % for each node
-                for n = 1:obj.mdl_ARGs{i}.num_nodes
-                    cov = 0;
-                    denominator=0;
-                    % we go over the sample
-                    for j = 1:obj.number_of_sample
-                        current_sample_cov = 0;
-                        current_sample_denominator = 0;
-                        % and finds its matching node, calculate the
-                        % average atrs
-                        for v =  1:obj.sampleARGs{j}.num_nodes
-                            if any(obj.sampleARGs{j}.nodes{v}.atrs) && any(obj.mdl_ARGs{i}.nodes{n}.atrs)
-                                x_atrs = obj.sampleARGs{j}.nodes{v}.atrs-obj.mdl_ARGs{i}.nodes{n}.atrs;
-                                current_sample_cov=current_sample_cov+x_atrs'*x_atrs*obj.node_match_scores{j,i}(v,n);
-                                current_sample_denominator = current_sample_denominator + obj.node_match_scores{j,i}(v,n);
+                for n = 1:obj.mdl_ARGs{h}.num_nodes
+                    if any(obj.mdl_ARGs{h}.nodes{n}.atrs)
+                        cov = 0;
+                        denominator=0;
+                        % we go over the sample
+                        for i = 1:obj.number_of_sample
+                            current_sample_cov = 0;
+                            current_sample_denominator = 0;
+                            % and finds its matching node, calculate the
+                            % average atrs
+                            for m =  1:obj.sampleARGs{i}.num_nodes
+                                if any(obj.sampleARGs{i}.nodes{m}.atrs)
+                                    x_atrs = obj.sampleARGs{i}.nodes{m}.atrs-obj.mdl_ARGs{h}.nodes{n}.atrs;
+                                    current_sample_cov=current_sample_cov+x_atrs'*x_atrs*obj.node_match_scores{i,h}(m,n);
+                                    current_sample_denominator = current_sample_denominator + obj.node_match_scores{i,h}(m,n);
+                                end
                             end
+                            cov = cov + current_sample_cov*obj.sample_component_matching_probs(i,h);
+                            denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
                         end
-                        cov = cov + current_sample_cov*obj.sample_component_matching_probs(j,i);
-                        denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(j,i);
+                        % udpate the value
+                        obj.mdl_ARGs{h}.nodes{n}.updateCov(cov/denominator);
                     end
-                    % udpate the value
-                    obj.mdl_ARGs{i}.nodes{n}.updateCov(cov/denominator);
                 end
             end       
         end
@@ -312,28 +319,30 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         % fast/easy
         function updateComponentNodeAtrs(obj)
             % for each component
-            for i = 1:obj.number_of_components
+            for h = 1:obj.number_of_components
                 % for each node
-                for n = 1:obj.mdl_ARGs{i}.num_nodes
-                    atrs = 0;
-                    denominator=0;
-                    % we go over the sample
-                    for j = 1:obj.number_of_sample
-                        current_sample_atrs = 0;
-                        current_sample_denominator = 0;
-                        % and finds its matching node, calculate the
-                        % average atrs
-                        for v =  1:obj.sampleARGs{j}.num_nodes
-                            if any(obj.sampleARGs{j}.nodes{v}.atrs)
-                                current_sample_atrs=current_sample_atrs+obj.sampleARGs{j}.nodes{v}.atrs*obj.node_match_scores{j,i}(v,n);
-                                current_sample_denominator = current_sample_denominator + obj.node_match_scores{j,i}(v,n);
+                for n = 1:obj.mdl_ARGs{h}.num_nodes
+                    if any(obj.mdl_ARGs{h}.nodes{n}.atrs)
+                        atrs = 0;
+                        denominator=0;
+                        % we go over the sample
+                        for i = 1:obj.number_of_sample
+                            current_sample_atrs = 0;
+                            current_sample_denominator = 0;
+                            % and finds its matching node, calculate the
+                            % average atrs
+                            for m =  1:obj.sampleARGs{i}.num_nodes
+                                if any(obj.sampleARGs{i}.nodes{m}.atrs)
+                                    current_sample_atrs=current_sample_atrs+obj.sampleARGs{i}.nodes{m}.atrs*obj.node_match_scores{i,h}(m,n);
+                                    current_sample_denominator = current_sample_denominator + obj.node_match_scores{i,h}(m,n);
+                                end
                             end
+                            atrs = atrs + current_sample_atrs*obj.sample_component_matching_probs(i,h);
+                            denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
                         end
-                        atrs = atrs + current_sample_atrs*obj.sample_component_matching_probs(j,i);
-                        denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(j,i);
+                        % udpate the value
+                        obj.mdl_ARGs{h}.nodes{n}.updateAtrs(atrs/denominator);
                     end
-                    % udpate the value
-                    obj.mdl_ARGs{i}.nodes{n}.updateAtrs(atrs/denominator);
                 end
             end       
         end
