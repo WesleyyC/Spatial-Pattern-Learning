@@ -104,7 +104,7 @@ end
 %% Set up the testing sample
 
 % Number of Sample
-number_of_testing_samples = 20;
+number_of_testing_samples = 50;
 % Preallocate samples cell array
 testing_samples=cell([1,number_of_testing_samples]);
 

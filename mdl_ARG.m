@@ -24,7 +24,7 @@ classdef mdl_ARG < handle
             self.edges = cell(self.num_nodes,self.num_nodes);
             
             % Initial frequency to 1
-            freq = 1;
+            freq = 1/self.num_nodes;
             
             % Convert ARG node to mdl_node
             mdl_node_handle=@(node)mdl_node(node.ID,node.atrs,freq);

@@ -66,7 +66,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             
             % Assigning Weight to 1
             % *** normalize
-            obj.weight = ones([1,number_of_components]);
+            obj.weight = ones([1,number_of_components])/number_of_components;
             
             % Randoming pick component from sampleARGs
             idx = randperm(length(sampleARGs)); % we first permutate the index for randomness
