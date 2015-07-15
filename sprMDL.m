@@ -20,7 +20,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         
         % graph matching return
         node_match_scores={};
-        node_compatibilities={};
+        node_compatibilities={};	% **** normalized it
         edge_compatibilities={};
         
         % sample-component matching score
@@ -38,7 +38,11 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         % Converging epsilon
         e_mdl_converge = 1e-4;
         % Node deleting threshold
-        e_delete = 0.5;
+        % We don't want to delete nodes in early stage
+        % so choose such number carefully
+        % e_delete_base - e_delete_iter^iter
+        e_delete_base = 1;
+        e_delete_iter = 0.5;
     end
     
     methods
@@ -61,6 +65,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             obj.mdl_ARGs = cell(1,number_of_components);
             
             % Assigning Weight to 1
+            % *** normalize
             obj.weight = ones([1,number_of_components]);
             
             % Randoming pick component from sampleARGs
@@ -194,7 +199,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 % get the average matching probability
                 av_matching_prob = av_frequency/prob_sum;
                 % delet the node that is less tha the threshold 1-e^iter
-                deleteIdx = av_matching_prob < 1-obj.e_delete^iter;
+                deleteIdx = av_matching_prob < obj.e_delete_base-obj.e_delete_iter^iter;
                 deleteIdx(end)=0; % the null node will always be remained
                 obj.mdl_ARGs{w}.modifyStructure(deleteIdx);
             end
@@ -386,6 +391,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         end
         
         % get the graph matching score for each sample-componennt pair
+        % **************************************passing the whole model?
         function graphMatching(obj)
             obj.node_match_scores = cell([obj.number_of_sample,obj.number_of_components]);
             obj.node_compatibilities = cell(size(obj.node_match_scores));
