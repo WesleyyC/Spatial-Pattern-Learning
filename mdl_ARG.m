@@ -72,6 +72,9 @@ classdef mdl_ARG < handle
             % get the nodes attributes
             getNodeAttributes = @(node)node.atrs;
             nodes_attributes = cellfun(getNodeAttributes,obj.nodes);
+            if~iscell(nodes_attributes)
+                nodes_attributes=num2cell(nodes_attributes);
+            end
             % build the matrix
             getEdgeAttributes = @(edge)edge.atrs;
             M = cellfun(getEdgeAttributes,obj.edges);
@@ -80,10 +83,10 @@ classdef mdl_ARG < handle
             bg = biograph(triu(M(1:end-1,1:end-1)),[],'ShowArrows','off','ShowWeights','on');
 
             model_struct = struct(  'Nf',nodes_frequence,... % the node frequency
-                                    'Na', nodes_attributes, ... % the node attributes
                                     'M', M, ... % the matrix
                                     'bg', bg...% the graph
                                     );
+            model_struct.Na = nodes_attributes;
         end
             
     end

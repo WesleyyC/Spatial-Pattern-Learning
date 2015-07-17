@@ -20,7 +20,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         
         % graph matching return
         node_match_scores={};
-        node_compatibilities={};	% **** normalized it
+        node_compatibilities={};
         edge_compatibilities={};
         
         % sample-component matching score
@@ -65,7 +65,6 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             obj.mdl_ARGs = cell(1,number_of_components);
             
             % Assigning Weight to 1
-            % *** normalize
             obj.weight = ones([1,number_of_components])/number_of_components;
             
             % Randoming pick component from sampleARGs
@@ -131,6 +130,19 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                     sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility) * obj.weight(i);
             end
             tf = score>=obj.thredshold_score;
+        end
+        
+        % showing the pattern that this model summarized
+        function pattern = summarizedPattern(obj)
+            % get the id of the most weighted model
+            [~,idx]=max(obj.weight);
+            % get the model, and in case there are multiple ARG, we only
+            % takes the first elemtn
+            representMDL = obj.mdl_ARGs{idx(1)};
+            % get the representation
+            struct = representMDL.showARG();
+            pattern = ARG(struct.M(1:end-1,1:end-1),struct.Na(1:end-1));
+            view(struct.bg);
         end
         
         % Get the thredshold score for confimrming pattern
@@ -417,7 +429,9 @@ classdef sprMDL < handle & matlab.mixin.Copyable
            edge_times_handle = @(mat)sum(sum(bsxfun(@times,node_match_score,mat)));
            first_time = cellfun(edge_times_handle,edge_compatibility);
            % add both part together
-           score = score + sum(sum(first_time.*node_match_score));         
+           score = score + sum(sum(first_time.*node_match_score));
+           % nomalize by the number of nodes in the component
+           score = score/log(size(node_match_score,2));
         end
        
     end

@@ -3,12 +3,12 @@
 clear
 
 %% Set up testing flags
-view_pattern = 0;
+view_pattern = 1;
 
 %% Set up the testing pattern
 
 % Pattern Size
-pattern_size = 6;
+pattern_size = 5;
 pattern_connected_rate = 0.4;
 % Node 
 node_atr_size = 1;
