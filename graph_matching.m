@@ -3,7 +3,7 @@ function [ match_matrix,C_n,C_e] = graph_matching( ARG1,ARG2 )
 %   matrix with two ARGs
 
     % set up condition and variable
-    % beta is the converging for getting the maximize number
+    % beta is the graduaded assignemnt update
     beta_0 = 0.5;
     beta_f = 10;
     beta_r = 1.075;

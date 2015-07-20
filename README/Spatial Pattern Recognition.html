@@ -1,0 +1,577 @@
+<!DOCTYPE html><html>
+
+<head>
+<meta charset="utf-8">
+<title>Spatial Pattern Recognition</title>
+<style type="text/css">
+body {
+  font-family: Helvetica, arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  background-color: white;
+  padding: 30px; }
+
+body > *:first-child {
+  margin-top: 0 !important; }
+body > *:last-child {
+  margin-bottom: 0 !important; }
+
+a {
+  color: #4183C4; }
+a.absent {
+  color: #cc0000; }
+a.anchor {
+  display: block;
+  padding-left: 30px;
+  margin-left: -30px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0; }
+
+h1, h2, h3, h4, h5, h6 {
+  margin: 20px 0 10px;
+  padding: 0;
+  font-weight: bold;
+  -webkit-font-smoothing: antialiased;
+  cursor: text;
+  position: relative; }
+
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor, h5:hover a.anchor, h6:hover a.anchor {
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA09pVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoMTMuMCAyMDEyMDMwNS5tLjQxNSAyMDEyLzAzLzA1OjIxOjAwOjAwKSAgKE1hY2ludG9zaCkiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OUM2NjlDQjI4ODBGMTFFMTg1ODlEODNERDJBRjUwQTQiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OUM2NjlDQjM4ODBGMTFFMTg1ODlEODNERDJBRjUwQTQiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo5QzY2OUNCMDg4MEYxMUUxODU4OUQ4M0REMkFGNTBBNCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo5QzY2OUNCMTg4MEYxMUUxODU4OUQ4M0REMkFGNTBBNCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PsQhXeAAAABfSURBVHjaYvz//z8DJYCRUgMYQAbAMBQIAvEqkBQWXI6sHqwHiwG70TTBxGaiWwjCTGgOUgJiF1J8wMRAIUA34B4Q76HUBelAfJYSA0CuMIEaRP8wGIkGMA54bgQIMACAmkXJi0hKJQAAAABJRU5ErkJggg==) no-repeat 10px center;
+  text-decoration: none; }
+
+h1 tt, h1 code {
+  font-size: inherit; }
+
+h2 tt, h2 code {
+  font-size: inherit; }
+
+h3 tt, h3 code {
+  font-size: inherit; }
+
+h4 tt, h4 code {
+  font-size: inherit; }
+
+h5 tt, h5 code {
+  font-size: inherit; }
+
+h6 tt, h6 code {
+  font-size: inherit; }
+
+h1 {
+  font-size: 28px;
+  color: black; }
+
+h2 {
+  font-size: 24px;
+  border-bottom: 1px solid #cccccc;
+  color: black; }
+
+h3 {
+  font-size: 18px; }
+
+h4 {
+  font-size: 16px; }
+
+h5 {
+  font-size: 14px; }
+
+h6 {
+  color: #777777;
+  font-size: 14px; }
+
+p, blockquote, ul, ol, dl, li, table, pre {
+  margin: 15px 0; }
+
+hr {
+  background: transparent url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAYAAAAECAYAAACtBE5DAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNSBNYWNpbnRvc2giIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6OENDRjNBN0E2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6OENDRjNBN0I2NTZBMTFFMEI3QjRBODM4NzJDMjlGNDgiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo4Q0NGM0E3ODY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo4Q0NGM0E3OTY1NkExMUUwQjdCNEE4Mzg3MkMyOUY0OCIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PqqezsUAAAAfSURBVHjaYmRABcYwBiM2QSA4y4hNEKYDQxAEAAIMAHNGAzhkPOlYAAAAAElFTkSuQmCC) repeat-x 0 0;
+  border: 0 none;
+  color: #cccccc;
+  height: 4px;
+  padding: 0;
+}
+
+body > h2:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+body > h1:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+  body > h1:first-child + h2 {
+    margin-top: 0;
+    padding-top: 0; }
+body > h3:first-child, body > h4:first-child, body > h5:first-child, body > h6:first-child {
+  margin-top: 0;
+  padding-top: 0; }
+
+a:first-child h1, a:first-child h2, a:first-child h3, a:first-child h4, a:first-child h5, a:first-child h6 {
+  margin-top: 0;
+  padding-top: 0; }
+
+h1 p, h2 p, h3 p, h4 p, h5 p, h6 p {
+  margin-top: 0; }
+
+li p.first {
+  display: inline-block; }
+li {
+  margin: 0; }
+ul, ol {
+  padding-left: 30px; }
+
+ul :first-child, ol :first-child {
+  margin-top: 0; }
+
+dl {
+  padding: 0; }
+  dl dt {
+    font-size: 14px;
+    font-weight: bold;
+    font-style: italic;
+    padding: 0;
+    margin: 15px 0 5px; }
+    dl dt:first-child {
+      padding: 0; }
+    dl dt > :first-child {
+      margin-top: 0; }
+    dl dt > :last-child {
+      margin-bottom: 0; }
+  dl dd {
+    margin: 0 0 15px;
+    padding: 0 15px; }
+    dl dd > :first-child {
+      margin-top: 0; }
+    dl dd > :last-child {
+      margin-bottom: 0; }
+
+blockquote {
+  border-left: 4px solid #dddddd;
+  padding: 0 15px;
+  color: #777777; }
+  blockquote > :first-child {
+    margin-top: 0; }
+  blockquote > :last-child {
+    margin-bottom: 0; }
+
+table {
+  padding: 0;border-collapse: collapse; }
+  table tr {
+    border-top: 1px solid #cccccc;
+    background-color: white;
+    margin: 0;
+    padding: 0; }
+    table tr:nth-child(2n) {
+      background-color: #f8f8f8; }
+    table tr th {
+      font-weight: bold;
+      border: 1px solid #cccccc;
+      margin: 0;
+      padding: 6px 13px; }
+    table tr td {
+      border: 1px solid #cccccc;
+      margin: 0;
+      padding: 6px 13px; }
+    table tr th :first-child, table tr td :first-child {
+      margin-top: 0; }
+    table tr th :last-child, table tr td :last-child {
+      margin-bottom: 0; }
+
+img {
+  max-width: 100%; }
+
+span.frame {
+  display: block;
+  overflow: hidden; }
+  span.frame > span {
+    border: 1px solid #dddddd;
+    display: block;
+    float: left;
+    overflow: hidden;
+    margin: 13px 0 0;
+    padding: 7px;
+    width: auto; }
+  span.frame span img {
+    display: block;
+    float: left; }
+  span.frame span span {
+    clear: both;
+    color: #333333;
+    display: block;
+    padding: 5px 0 0; }
+span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both; }
+  span.align-center > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px auto 0;
+    text-align: center; }
+  span.align-center span img {
+    margin: 0 auto;
+    text-align: center; }
+span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both; }
+  span.align-right > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px 0 0;
+    text-align: right; }
+  span.align-right span img {
+    margin: 0;
+    text-align: right; }
+span.float-left {
+  display: block;
+  margin-right: 13px;
+  overflow: hidden;
+  float: left; }
+  span.float-left span {
+    margin: 13px 0 0; }
+span.float-right {
+  display: block;
+  margin-left: 13px;
+  overflow: hidden;
+  float: right; }
+  span.float-right > span {
+    display: block;
+    overflow: hidden;
+    margin: 13px auto 0;
+    text-align: right; }
+
+code, tt {
+  margin: 0 2px;
+  padding: 0 5px;
+  white-space: nowrap;
+  border: 1px solid #eaeaea;
+  background-color: #f8f8f8;
+  border-radius: 3px; }
+
+pre code {
+  margin: 0;
+  padding: 0;
+  white-space: pre;
+  border: none;
+  background: transparent; }
+
+.highlight pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px; }
+
+pre {
+  background-color: #f8f8f8;
+  border: 1px solid #cccccc;
+  font-size: 13px;
+  line-height: 19px;
+  overflow: auto;
+  padding: 6px 10px;
+  border-radius: 3px; }
+  pre code, pre tt {
+    background-color: transparent;
+    border: none; }
+
+sup {
+    font-size: 0.83em;
+    vertical-align: super;
+    line-height: 0;
+}
+* {
+	-webkit-print-color-adjust: exact;
+}
+@media screen and (min-width: 914px) {
+    body {
+        width: 854px;
+        margin:0 auto;
+    }
+}
+@media print {
+	table, pre {
+		page-break-inside: avoid;
+	}
+	pre {
+		word-wrap: break-word;
+	}
+}
+</style>
+</head>
+<body>
+<h1 id="toc_0">Spatial Pattern Recognition</h1>
+
+<h6 id="toc_1">Wesley Wei Qian on 07-20-15</h6>
+
+<h2 id="toc_2">Contents</h2>
+
+<ul>
+<li><a href="#introduction">Introduction</a> </li>
+<li><a href="#code-explanation">Code Explanation</a> 
+
+<ul>
+<li><a href="#basic-component">Basic Component</a></li>
+<li><a href="#usage">Usage</a></li>
+<li><a href="#advanced-usage">Advanced Usage</a></li>
+<li><a href="#some-implementation-detail">Some Implementation Detail</a></li>
+</ul></li>
+<li><a href="#result">Result</a> </li>
+</ul>
+
+<h2 id="toc_3"><a name="introduction"></a>Introduction</h2>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+This package implments a probabilistic parametric model which can be trained to operate soatial pattern recognition task on ARGs, which comes from <a href="http://combio.cs.brandeis.edu/hong/Research/e_paper/Spatial%20pattern%20discovery%20by%20learning%20a%20probabilistic%20parametric%20model%20from%20multiple%20attributed%20relational%20graphs.pdf">the idea of P. Hong &amp; T.S. Huang</a>.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+The package is implmented in MATLAB using OOP and it is very easy to change the converging function, matching compatabiltiy function for different tasks (e.g., image/video retrieval, understand chemical comounds structure, discover gene regulation pattern, etc.)</p>
+
+<h2 id="toc_4"><a name="code-explanation"></a>Code Explanation</h2>
+
+<h6 id="toc_5">&nbsp;&nbsp;&nbsp;&nbsp; In this section, I will explain the basic structure of the code base and how to use them.</h6>
+
+<h3 id="toc_6"><a name="basic-component"></a>Basic Component</h3>
+
+<ul>
+<li><h5 id="toc_7">Class Components</h5>
+
+<ul>
+<li><p><strong>sprMDL.m</strong>
+which is the most important class representing the trained model. </p>
+
+<ul>
+<li>The constructor will take a cell array of sample ARGs and the number of components and start the training. </li>
+<li>The model is trained using an EM algorithm, whose converging condition and maximum iteration can be changed.</li>
+<li>It has a number of model ARGs representing different component in the model and different weight associated with them.</li>
+<li>Once the model is built, you can ask for the pattern that is being summarized in the model or if a new ARG has a similar pattern of the given sample ARGs, and if so, what is the pattern ARG? </li>
+</ul></li>
+<li><p><strong>ARG.m</strong>
+which represents the basic <em>sample</em> ARG with a cell array of Nodes and a symmetric cell matrix of Edges. </p>
+
+<ul>
+<li>It is created with a full <em>NxN</em> matrix representation of the graph and a <em>N</em> length cell array of nodes attributes.</li>
+</ul></li>
+<li><p><strong>node.m</strong>
+which represents the node of a basic ARG. </p>
+
+<ul>
+<li>It is created in the basic ARG construction, with an ID (construction order) and an attributes field.</li>
+</ul></li>
+<li><p><strong>edge.m</strong>
+which represents the edge of a basic ARG. </p>
+
+<ul>
+<li>It is created in the basic ARG construction, with the edge attributes, two IDs of the edge endpoint and a cell array of Nodes (this constuction can be simplify).</li>
+</ul></li>
+<li><p><strong>mdl_ARG.m</strong>
+which is very similar to the ARG.m but represents an individual componennt in the probabilsitic parametric model and has more functionality.</p>
+
+<ul>
+<li>It is created with a basic ARG as each component in the model is first initalized as a sample ARG.</li>
+<li>Different than the basic ARG, model ARG can modify its structure, update nodes/edges accroding to the main model class.</li>
+</ul></li>
+<li><p><strong>mdl_node.m</strong>
+which inherits from the <em>node.m</em> class and represent the node in the model ARG.</p>
+
+<ul>
+<li>It is created with a basic node during the construction of model ARG.</li>
+<li>It has the ability to update its attributes vector and calcualte the inverse of its attributes.</li>
+</ul></li>
+<li><p><strong>mdl_edge.m</strong>
+which inherits from the <em>edge.m</em> class and represent the edge in the model ARG.</p>
+
+<ul>
+<li>It is created with a basic edge during the construction of model ARG.</li>
+<li>It has the ability to update its attributes vector and calcualte the inverse of its attributes.</li>
+</ul></li>
+</ul></li>
+<li><h5 id="toc_8">Function Components</h5>
+
+<ul>
+<li><p><strong>graph_matching.m</strong>
+is another important component which return a matching matrix denoted the matching score between nodes of sample ARG and model ARG.</p>
+
+<ul>
+<li>Graph Matching/Subgraph Isomorphism problem is a long-known NP-problem, so to solve the probelm we use <a href="https://www.cise.ufl.edu/%7Eanand/pdf/pamigm3.pdf">God and Rangarajan&#39;s graduated assignment approach</a> to get a good approxiamation efficently.</li>
+<li>An individual implementation of such algorithm can be found in the <code>..\GraphMatching</code> folder, where the function will take two basic ARG instead of a basic ARG and a model ARG as required by the model training here.</li>
+</ul></li>
+<li><p><strong>converege.m</strong>
+is a function associate with <em>graph_matching.m</em> as it determines if the training result converges.</p>
+
+<ul>
+<li>User can chagen this function with iteration variable <code>I_</code> and converging variable <code>beta_</code> in <em>graph_matching.m</em> to decide the accuracy of the matching score returned from <em>graph_matching.m</em>.</li>
+</ul></li>
+<li><p><strong>heuristic.m</strong>
+is another function associate with <em>graph_matching.m</em> as it is used to decorated the result from tha matching function.</p>
+
+<ul>
+<li>For our purpose, we simply return what the algorithm returns, but for Graph Matching/Subgraph Isomorphism problem, such function can be used to pick the best matching between two ARGs, as written in <code>..\GraphMatching\heursitic.m</code>.</li>
+</ul></li>
+<li><p><strong>edge_compatability.m</strong> and <strong>node_compatability.m</strong> 
+is the function calculate the matching score between nodes and edges according to their attributes and covariance matrix.</p>
+
+<ul>
+<li>In our implementation, we assume both node and edge follow a Gaussian distribution, but this can be changed accroding to the application scenario.</li>
+</ul></li>
+<li><p><strong>mdl_converge.m</strong> 
+is a fucntion associated with the main model class <code>sprMDL.m</code> and it determines if the model is converged.</p>
+
+<ul>
+<li>By changing this function and iteration variable <code>iteration_EM</code> and converging variable <code>e_mdl_converge</code> in <em>graph_matching.m</em>, user can define the training accuracy of such model.</li>
+</ul></li>
+</ul></li>
+<li><h5 id="toc_9">Test/Demo Components</h5>
+
+<ul>
+<li><p><strong>test.m</strong>
+is a simple setup to demo the model, where as you can notice, the nodes attributes can be vecotr.</p></li>
+<li><p><strong>ModelTest.m</strong>
+is a random test script to test the accurracy and efficiency of the model.</p>
+
+<ul>
+<li>The test first build up a base pattern and buil some training samples with such pattern. The model is them trained with these samples and test against some test samples with such patterns and some samples genreated randomly. </li>
+<li>User can show the pattern of the model and its componenets by making variable <code>view_pattern</code> to <code>1</code> instead of <code>0</code>.</li>
+<li>User can also change other variables (e.g. pattern size, number of components, pattern connected rate) in the script for different testing purposes.</li>
+</ul></li>
+<li><p><strong>..\GraphMatching\test.m</strong>
+is a simple setup to demo the graph matching algorithm.</p></li>
+<li><p><strong>..\GraphMatching\RandomGraphTest.m</strong> 
+is a random test script to test the accuracy and efficiency of the graph matching function.</p>
+
+<ul>
+<li>The test first build a random graph, then create another graph by permutating the first graph (nodes order and attributes). The matching correcteness is then being calculated.</li>
+<li>User can also change other variables (e.g. number of rounds, the size of the graph, noise rate) in the script for different testing purposes.</li>
+</ul></li>
+</ul></li>
+</ul>
+
+<h3 id="toc_10"><a name="usage"></a>Usage</h3>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+Despite all the complex components, the usage of such model is rather simple. Assume you have:</p>
+
+<ul>
+<li>a set of training sample ARGs listed in a cell array <code>sample_ARGs</code>;</li>
+<li>an ideal number of component for the model <code>number_of_component</code>;</li>
+<li>a test ARG that you want to know if has the similar pattern as the set of samples <code>test_ARG</code>;</li>
+</ul>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+Then to use the model, you can do the following:</p>
+
+<pre><code>% We first train a model by sending it the samples and the number_of_component,
+% and a model will be returned.
+
+    mdl = sprMDL(sample_ARGs, number_of_component);
+
+
+% Then we can ask for the pattern that is summarized in the model,
+% and a summarized pattern will be returned as an ARG,
+% in the mean time, a biograph will show up to visualze the pattern.
+
+    summarized_pattern = mdl.summarizedPattern();
+    
+% Besides showing the whole model, you can also ask to show a specific component (the ith),
+% and the function will return a structure consisting the information of this model,
+% including nodes attributes, nodes frequency, edges matrix 
+% as well as a visualization component bg that can be viewed as biograph.
+
+    component_struct = mdl.mdl_ARGs{i}.showARG();
+    view(component_struct.bg);
+
+
+% We can also check if the test_ARG has a similar pattern,
+% and a boolean value we tell us if the test_ARG has a simialr pattern.
+
+    tf = mdl.checkSamePattern(test_ARG);
+    
+
+% If you are greeedy, you can also ask for which part of the test_ARG are similar to the sample ARG.
+% If there is indeed a similar pattern, the pattern will be returned as an ARG.
+% Otherwise, NaN will be return
+
+    the_similar_pattern = mdl.getSamePattern(test_ARG);
+
+</code></pre>
+
+<h3 id="toc_11"><a name="advanced-usage"></a>Advanced Usage</h3>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+Since the implementation is written in OOP, it can be modified easily. However, reading through the implementation detail in the following secation is highly recommended.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+As I mentioned in the basic component section, user can modify the edge/node compatability functiona and the converging function for both the graph matching algorithm and EM algorithm during the model training. However, there are other properties that the user can tune to fit their application best.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+For the spatial pattern recognition model, user can change the following constants in <code>sprMDL.m</code>:</p>
+
+<pre><code>    properties (Constant)
+        % Maximum EM algorithm running rounds
+            iteration_EM = 30;
+        
+        % Converging epsilon, the converging thredshold
+         e_mdl_converge = 1e-4;
+         
+        % Structure Modification Setup
+        % We don&#39;t want to delete nodes in early stage
+        % so choose such number carefully
+        % The thredshold is set up as e_delete_base - e_delete_iter^iter
+            e_delete_base = 1;
+            e_delete_iter = 0.5;
+    end
+    </code></pre>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+For the graph matching probelm, user can change the following variables <code>graph_matching.m</code>:</p>
+
+<pre><code>    % beta is the graduaded assignemnt update
+        beta_0 = 0.5;
+        beta_f = 10;
+        beta_r = 1.075;
+        
+    % I control the iteration number for each round
+        I_0 = 4;
+        I_1 = 30;
+        
+    % e is the converging epsilon thredshold
+        e_B = 0.5;
+        e_C=0.05;    
+        
+    % node attriubute compatability weight in the score
+        alpha = 0.1;</code></pre>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+<strong>Last but not least</strong>, even though some implementation is discussed in the following section, understand the underlying idea of <a href="http://combio.cs.brandeis.edu/hong/Research/e_paper/Spatial%20pattern%20discovery%20by%20learning%20a%20probabilistic%20parametric%20model%20from%20multiple%20attributed%20relational%20graphs.pdf">the spatial pattern recognition model</a> and <a href="https://www.cise.ufl.edu/%7Eanand/pdf/pamigm3.pdf">the graph matching</a> is very important, so pelase take a look at these two paper.</p>
+
+<h3 id="toc_12"><a name="some-implementation-detail"></a>Some Implementation Detail</h3>
+
+<ul>
+<li>Null Edge/Node Representation</li>
+<li>Edge/Node attributes&#39; vector representation</li>
+<li>Model Modification During the Training</li>
+<li>Edge Compatability Calculation during Graph Matching</li>
+</ul>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+More to come.</p>
+
+<h2 id="toc_13"><a name="result"></a> Result</h2>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+Even though more advanced test might be needed, here are some of the result we currently have:</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+For the spatial pattern recognition model, it takes about <strong>5 hours</strong> to train a model with a 10-node-pattern, fifty 20-node-sample, five components, 4% connected rate on an average commercial machine. Then the model is test on fifty testing samples with the patterns and fifty random samples may or maynot have the patterns. The recognition rate is <strong>92%</strong> compared to a <strong>56%</strong> recognition rate for the random samples.</p>
+
+<p>&nbsp;&nbsp;&nbsp;&nbsp;
+For the graph matching function, it takes about <strong>30 minutes</strong> to run a match on two ARGs with 100 nodes and a 5% connected rate permutating in 10% noise. We run 10 rounds of such match and the average correct rate is about <strong>99%</strong>.</p>
+
+
+</body>
+
+</html>
