@@ -54,12 +54,12 @@ function [ match_matrix,C_n,C_e] = graph_matching( ARG1,ARG2 )
         
         % for low connected rate
         weight_handle = @(edge)edge.atrs;
-        [ARG1_index(:,1),ARG1_index(:,2)] = find(sparse(cellfun(weight_handle,ARG1.edges)));
-        [ARG2_index(:,1),ARG2_index(:,2)] = find(sparse(cellfun(weight_handle,ARG2.edges)));
-        arg1_edges_num = length(ARG1_index(:,1));
-        arg2_edges_num = length(ARG2_index(:,1));
-        ARG1_edge_index = mat2cell(ARG1_index,ones([1,arg1_edges_num]));
-        ARG2_edge_index = mat2cell(ARG2_index,ones([1,arg2_edges_num]));
+        [i_1,j_1,~] = find(sparse(cellfun(weight_handle,ARG1.edges)));
+        [i_2,j_2,~] = find(sparse(cellfun(weight_handle,ARG2.edges)));
+        arg1_edges_num = length(i_1);
+        arg2_edges_num = length(i_2);
+        ARG1_edge_index = mat2cell([i_1,j_1],ones([1,arg1_edges_num]));
+        ARG2_edge_index = mat2cell([i_2,j_2],ones([1,arg2_edges_num]));
 
         C_e = mat2cell(zeros([A*A,I*I]),ones([1,A])*A,ones([1,I])*I);    
 

@@ -1,0 +1,17 @@
+>> ModelTest
+Elapsed time is 18083.029553 seconds.
+
+detect_pattern =
+
+     1
+
+
+test_correct_rate =
+
+    0.9200
+
+
+random_correct_rate =
+
+    0.5600
+

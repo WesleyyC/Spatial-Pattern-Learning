@@ -135,9 +135,9 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         % showing the pattern that this model summarized
         function pattern = summarizedPattern(obj)
             % get the id of the most weighted model
-            component_prob = sum(obj.sample_component_matching_probs).*obj.weight;
-            component_prob = component_prob/sum(component_prob);
-            [~,idx]=max(component_prob);
+%             component_prob = sum(obj.sample_component_matching_probs).*obj.weight;
+%             component_prob = component_prob/sum(component_prob);
+            [~,idx]=max(obj.weight);
             % get the model, and in case there are multiple ARG, we only
             % takes the first elemtn
             representMDL = obj.mdl_ARGs{idx(1)};
