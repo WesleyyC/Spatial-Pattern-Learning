@@ -11,6 +11,7 @@
 	- [Some Implementation Detail](#some-implementation-detail)
 - [Result](#result) 
 
+
 ## <a name="introduction"></a>Introduction
 
 &nbsp;&nbsp;&nbsp;&nbsp;
@@ -18,6 +19,7 @@ This package implments a probabilistic parametric model which can be trained to 
 
 &nbsp;&nbsp;&nbsp;&nbsp;
 The package is implmented in MATLAB using OOP and it is very easy to change the converging function, matching compatabiltiy function for different tasks (e.g., image/video retrieval, understand chemical comounds structure, discover gene regulation pattern, etc.)
+
 
 ## <a name="code-explanation"></a>Code Explanation
 
@@ -178,6 +180,8 @@ For the spatial pattern recognition model, user can change the following constan
     end
     
 ```
+&nbsp;&nbsp;&nbsp;&nbsp;
+Moreover, in the current implementation, the model use the lowest matching score from sample to set the thredshold for judging if a new ARG has the same pattern. Such thredshold setting system can also be changed according to user's application.
 
 &nbsp;&nbsp;&nbsp;&nbsp;
 For the graph matching probelm, user can change the following variables `graph_matching.m`:
@@ -208,17 +212,57 @@ For the graph matching probelm, user can change the following variables `graph_m
 
 - **Null Edge/Node Representation**
 
-   During the development of this project, we found that matrix operation on `NaN` value is much slower than `0` value, so we decide to use `0` value to represent a 
+   During the development of this project, we found that matrix operation on `NaN` value is much slower than `0` value, so we decide to use `0` value to represent a null value, or a non-existen edge or node. In the compatability functoin, if the function detect a zero, it will return a zero score so that a non-existen edge/node would not have any impact on the result.
+   
+   However, if you do have a zero attributes for your existen edge/node, a good get around can be adding a small constatn to all your edge/node attributes and then set tha `NaN` value to `0`.
 
-- Edge/Node attributes' vector representation
-- Edge Compatability Calculation during Graph Matching
-- Node Compatability Weight
-- Model Modification During the Training
-- Implement Efficiency
+- **Edge Attributes' Vector Representation**
 
+	During the development, we assume that the edge attribute is just a weight, so we assume the edge attribute will always be a weight so the connection is represented by a simple matrix.
+	
+	However, in you real life, the edge attributes can be vector. So to modify the implementation, I think the major modification you might need to do is changing the constructon in `ARG.m` and `mdl_ARG.m`.
+	
+	If you think this modification is too much, we are very likely to solve this probelm during our next update.
+	
+- **Edge Compatability Calculation during Graph Matching**
 
-&nbsp;&nbsp;&nbsp;&nbsp;
-More to come.
+	As you might notice, we implemented two methods to calculating the edge compatability depends on the connected rate of the graph.
+	
+	The first way is we go nodes by nodes in graph to pariing four nodes (two nodes for each graph). If we have a graph with `A` nodes and another graph with `I` nodes, this operation can be as expensive as `O(A^2*I^2)`. Thanks to the effecient matrix operation in MATLAB, we can convert this potential four `for` loop operation into simple matrix operation. 
+	
+	However, a lot of time will be wasted if the graph has a very low connected rate and has very little edges. So we discvoer the second way, where we only calculate the matching score for existen edges using a sparse matrix.
+	
+	Now you might think the second method can definitely saves time, but it is not true. Since we need to use some nested for loop in the second method, if the connected rate is high enough, the first method can actually beat the second method. That's why we only use the second method when the connected rate is less than `0.4` in the code.
+	
+- **Node Compatability Weight**
+
+	In the code for the graph matching function, there is a variable `alpha` that can weight the node compatabiltiy score and you can see it as a control to how much the node compatability impact the algorithm against the edge compatabilyty.
+	
+	For example, if you have a lot of nodes that has the same attribute while there are only a few number of edges. The edge compatability will be much more important during your graph matching task. In this case, you would like to lower the `alpha` so that the algorithm can focus on the edges.
+	
+	However, if your graph has a lot of similar edges while the variance for node attributes are very high, you would like the algorithm to focus more on the node as against the edges. In this case, you would like to make `alpha` larger.
+	
+- **Model Modification During the Training**
+
+	As I mentioned above, when we initialize our pattern recognition model, we initialzied our components by randomly picking samples. Therefore if we didn't do any strutrue modification on our components, our components can have much more nodes than it needed to represent the summarized pattern, which means more background noise is introduced.
+	
+	To deal with this case, we add a structure modification step so that we can cut the unnecessary node, or less weighted node in each EM iteration. To do so, we set up an thredshold score and change this thredshold score at each iteration so that the cutting rule is more ane more strict after each iteration.
+	
+	However, we don't want to cut nodes at the beginning of each training since our initialization can be wrong and the node we cut can be an important representation of the model.
+	
+- **Component Weight and Component Nodes Number**
+
+	During the development, I found out that the model tends to give a higher weight for the component with more nodes, even though the pattern they need to summarized is far less than it. It makes sens because a componennt with more nodes simply has a better chance to match somthing from our sample patterns.
+	
+	However, in this case, the model might say yes to some random pattern instead of the one they summarized. Therefore, we introduce a normalization in the calculation of sample-component matching score, where we divdie the score by the `log` of the component's size. 
+	
+	Therefore, we can make the components more fair to the components having less weight and taking a `log` can make such change smoother.
+
+- **Implementation Efficiency**
+	
+	As you can imagine, EM algorithm training and graph matching problem can both be very expensive task in terms of time efficeincy. In the graph matching function, we use a lot of matrix operation so that MATLAB can optimize the runtime for us. However, during the development of the spatial pattren recognition model, we found it hard to make matrix representation of our information so there are some huge nested `for` loop in the code, which can slow the running time.
+	
+	So this is definitely an improvement we can continue to work on.
 
 
 ## <a name="result"></a> Result
@@ -231,3 +275,4 @@ For the spatial pattern recognition model, it takes about **5 hours** to train a
 
 &nbsp;&nbsp;&nbsp;&nbsp;
 For the graph matching function, it takes about **30 minutes** to run a match on two ARGs with 100 nodes and a 5% connected rate permutating in 10% noise. We run 10 rounds of such match and the average correct rate is about **99%**.
+
