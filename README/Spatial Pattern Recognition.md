@@ -38,7 +38,7 @@ The package is implmented in MATLAB using OOP and it is very easy to change the 
 		
 	- **ARG.m**
 		which represents the basic *sample* ARG with a cell array of Nodes and a symmetric cell matrix of Edges. 
-		- It is created with a full *NxN* matrix representation of the graph and a *N* length cell array of nodes attributes.
+		- It is created with a full *NxN* symmetric cell array representation of the graph, where each cell consists of the vector attributes associated with the edge, and a *N* length cell array of nodes attributes.
 		
 	- **node.m**
 		which represents the node of a basic ARG. 
@@ -215,14 +215,6 @@ For the graph matching probelm, user can change the following variables `graph_m
    During the development of this project, we found that matrix operation on `NaN` value is much slower than `0` value, so we decide to use `0` value to represent a null value, or a non-existen edge or node. In the compatability functoin, if the function detect a zero, it will return a zero score so that a non-existen edge/node would not have any impact on the result.
    
    However, if you do have a zero attributes for your existen edge/node, a good get around can be adding a small constatn to all your edge/node attributes and then set tha `NaN` value to `0`.
-
-- **Edge Attributes' Vector Representation**
-
-	During the development, we assume that the edge attribute is just a weight, so we assume the edge attribute will always be a weight so the connection is represented by a simple matrix.
-	
-	However, in you real life, the edge attributes can be vector. So to modify the implementation, I think the major modification you might need to do is changing the constructon in `ARG.m` and `mdl_ARG.m`.
-	
-	If you think this modification is too much, we are very likely to solve this probelm during our next update.
 	
 - **Edge Compatability Calculation during Graph Matching**
 

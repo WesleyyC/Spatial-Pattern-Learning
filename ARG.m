@@ -7,8 +7,7 @@ classdef ARG < handle
         num_nodes = NaN;
         nodes = {};
         edges = {};
-        matrix = NaN;
-        atrs_vector = NaN;
+        connected_rate = NaN;
     end
     
     methods
@@ -50,13 +49,16 @@ classdef ARG < handle
             % Create Edge
             for i = 1:self.num_nodes
                 for j = 1:self.num_nodes
-                    self.edges{i,j}=edge(M(i,j),i,j,self.nodes);
+                    self.edges{i,j}=edge(M{i,j},i,j,self.nodes);
+                    if any(self.edges{i,j}.atrs)
+                        self.connected_rate=self.connected_rate+1;
+                    end
                 end
             end
-            
-            self.matrix = M;
-            self.atrs_vector = nodes_atrs;
 
+            % Get connected rate
+            self.connected_rate = self.connected_rate/self.num_nodes^2;
+            
         end
         
     end

@@ -3,13 +3,13 @@
 clear
 
 %% Set up testing flags
-view_pattern = 0;
+view_pattern = 1;
 
 %% Set up the testing pattern
 
 % Pattern Size
 pattern_size = 5;
-pattern_connected_rate = 0.3;
+pattern_connected_rate = 0.4;
 % Node 
 node_atr_size = 1;
 node_atr_weight_range =10;
@@ -73,7 +73,7 @@ for i = 1:number_of_training_samples
     sample_nodes_atrs = sample_nodes_atrs(idx);
         
     % Build up the sample ARG
-    training_samples{i} = ARG(sampleM, num2cell(sample_nodes_atrs));
+    training_samples{i} = ARG(num2cell(sampleM), num2cell(sample_nodes_atrs));
 end
 
 %% Generate a model
@@ -89,7 +89,7 @@ toc(trainStart);
 %% Test Result
 
 % check if the model can detect the base pattern
-detect_pattern = mdl.checkSamePattern(ARG(pattern,num2cell(pattern_nodes_atrs)))
+detect_pattern = mdl.checkSamePattern(ARG(num2cell(pattern),num2cell(pattern_nodes_atrs)))
 
 % show the pattern and model pattern if the flag is up
 if view_pattern
@@ -142,7 +142,7 @@ for i = 1:number_of_testing_samples
     sample_nodes_atrs = sample_nodes_atrs(idx);
         
     % Build up the sample ARG
-    testing_samples{i} = ARG(sampleM, num2cell(sample_nodes_atrs));
+    testing_samples{i} = ARG(num2cell(sampleM), num2cell(sample_nodes_atrs));
 end
 
 % check the testing sample
@@ -169,7 +169,7 @@ for i = 1:number_of_random_samples
     % Generate a random vector represented the node atrs
     sample_nodes_atrs = rand([1,sample_size])*node_atr_weight_range;
     % Create the sample
-    random_samples{i} = ARG(sampleM, num2cell(sample_nodes_atrs));
+    random_samples{i} = ARG(num2cell(sampleM), num2cell(sample_nodes_atrs));
 end
 
 % check the random sample

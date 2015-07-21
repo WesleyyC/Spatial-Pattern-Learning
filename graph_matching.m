@@ -46,11 +46,8 @@ function [ match_matrix,C_n,C_e] = graph_matching( ARG1,ARG2 )
     C_n=alpha*C_n;
     
     % pre-calculate the edge compatability
- 
-    % calculate the connected rate and decide which method to use
-    connected_rate = sum(sum(ARG1.matrix~=0))/numel(ARG1.matrix);
 
-    if connected_rate<0.4
+    if ARG1.connected_rate<0.4
         
         % for low connected rate
         weight_handle = @(edge)edge.atrs;

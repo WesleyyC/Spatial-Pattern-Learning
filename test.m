@@ -21,6 +21,8 @@ for i = 1:length(links)
     M(node2,node1)=weight(i); %Symmetric
 end
 
+M=num2cell(M);
+
 %nodes_atrs = {1,20,30};
 nodes_atrs = {[1,3],[2,10],[20,7]};
 %nodes_atrs = NaN;
@@ -45,6 +47,8 @@ for i = 1:length(links)
     M(node1,node2)=weight(i);
     M(node2,node1)=weight(i); %Symmetric
 end
+
+M=num2cell(M);
 
 %nodes_atrs = {1,20,30,50,30};
 nodes_atrs = {[1,3],[2,10],[20,7],[50,100],[30,204]};
