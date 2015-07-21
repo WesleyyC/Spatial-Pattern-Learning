@@ -88,7 +88,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 for i = 1:obj.number_of_components
                     [node_match_score,node_compatibility,edge_compatibility]=graph_matching(testARG,obj.mdl_ARGs{i});
                     sample_component_weight(i)=...
-                        sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility) * obj.weight(i);
+                        sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility,false) * obj.weight(i);
                 end
                 % normalize to one
                 sample_component_weight=sample_component_weight/sum(sample_component_weight);
@@ -127,7 +127,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             for i = 1:obj.number_of_components
                [node_match_score,node_compatibility,edge_compatibility]=graph_matching(ARG,obj.mdl_ARGs{i});
                 score = score + ...
-                    sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility) * obj.weight(i);
+                    sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility,false) * obj.weight(i);
             end
             tf = score>=obj.thredshold_score;
         end
@@ -149,6 +149,8 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         
         % Get the thredshold score for confimrming pattern
         function getThredsholdScore(obj)
+            handle=@(node_match_score,node_compatibility,edge_compatibility)sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility,false);
+            obj.component_scores=cellfun(handle,obj.node_match_scores,obj.node_compatibilities,obj.edge_compatibilities);
             scores = obj.component_scores.*repmat(obj.weight,obj.number_of_sample,1);
             scores = sum(scores,2);
             obj.thredshold_score = min(scores);
@@ -397,7 +399,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         function getMatchingProbs(obj)
             % Use the graphMatching() data calculate the sample-componennt
             % matching score & probability
-            handle=@(node_match_score,node_compatibility,edge_compatibility)sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility);
+            handle=@(node_match_score,node_compatibility,edge_compatibility)sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility,true);
             obj.component_scores=cellfun(handle,obj.node_match_scores,obj.node_compatibilities,obj.edge_compatibilities);
             s=sum(obj.component_scores,2);
             n=repmat(s,1,obj.number_of_components);
@@ -424,7 +426,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
     
     methods(Static)
         % scoring for each sample-component pair
-        function score = component_score(node_match_score,node_compatibility,edge_compatibility)
+        function score = component_score(node_match_score,node_compatibility,edge_compatibility,train)
            % calculate the prob from the nodes part
            score = sum(sum(node_match_score.*node_compatibility));           
            % calculate the prob from the edges part
@@ -432,8 +434,11 @@ classdef sprMDL < handle & matlab.mixin.Copyable
            first_time = cellfun(edge_times_handle,edge_compatibility);
            % add both part together
            score = score + sum(sum(first_time.*node_match_score));
-           % nomalize by the number of nodes in the component
-           score = score/log(size(node_match_score,2));
+           % nomalize by the number of nodes in the component if it is
+           % during the training
+           if train
+                score = score/log(size(node_match_score,2));
+           end
         end
        
     end
