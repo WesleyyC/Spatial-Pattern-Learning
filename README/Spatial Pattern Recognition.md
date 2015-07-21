@@ -153,7 +153,7 @@ Then to use the model, you can do the following:
 ### <a name="advanced-usage"></a>Advanced Usage
 
 &nbsp;&nbsp;&nbsp;&nbsp;
-Since the implementation is written in OOP, it can be modified easily. However, reading through the implementation detail in the following secation is highly recommended.
+Since the implementation is written in OOP, it can be modified easily. However, reading through the [implementation detail](#some-implementation-detail) in the following secation is highly recommended.
 
 &nbsp;&nbsp;&nbsp;&nbsp;
 As I mentioned in the basic component section, user can modify the edge/node compatability functiona and the converging function for both the graph matching algorithm and EM algorithm during the model training. However, there are other properties that the user can tune to fit their application best.
@@ -206,10 +206,15 @@ For the graph matching probelm, user can change the following variables `graph_m
 
 ### <a name="some-implementation-detail"></a>Some Implementation Detail
 
-- Null Edge/Node Representation
+- **Null Edge/Node Representation**
+
+   During the development of this project, we found that matrix operation on `NaN` value is much slower than `0` value, so we decide to use `0` value to represent a 
+
 - Edge/Node attributes' vector representation
-- Model Modification During the Training
 - Edge Compatability Calculation during Graph Matching
+- Node Compatability Weight
+- Model Modification During the Training
+- Implement Efficiency
 
 
 &nbsp;&nbsp;&nbsp;&nbsp;
