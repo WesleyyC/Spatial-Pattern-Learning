@@ -23,7 +23,7 @@ function [c] = edge_compatibility(edge, mdl_edge)
         mdl_edge_cov_inv = mdl_edge.cov_inv;
         
         % calculate the score
-        c=exp(-(edge_atrs-mdl_edge_atrs)*mdl_edge_cov_inv*(edge_atrs-mdl_edge_atrs)')/...
+        c=exp(-0.5*(edge_atrs-mdl_edge_atrs)*mdl_edge_cov_inv*(edge_atrs-mdl_edge_atrs)')/...
             ((2*pi)^(num_atrs/2)*sqrt(det(mdl_edge_cov)));
     end
 end
