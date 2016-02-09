@@ -3,19 +3,19 @@
 clear
 
 %% Set up testing flags
-view_pattern = 1;
+view_pattern = 0;
 
 %% Set up the testing pattern
 
 % Pattern Size
-pattern_size = 5;
-pattern_connected_rate = 0.4;
+pattern_size = 10;
+pattern_connected_rate = 4/10;
 % Node 
 node_atr_size = 1;
-node_atr_weight_range =10;
+node_atr_weight_range = 20;
 % Edge
 edge_atr_size = 1;
-edge_atr_weight_range =10;
+edge_atr_weight_range =14;
 
 % Generate a random matrix represented the pattern
 pattern = triu(rand(pattern_size)*edge_atr_weight_range,1);    %  upper left part of a random matrix with weight_range
@@ -28,7 +28,7 @@ pattern_nodes_atrs = rand([1,pattern_size])*node_atr_weight_range;
 %% Set up the training sample
 
 % Number of Sample
-number_of_training_samples = 10;
+number_of_training_samples = 20;
 % Set up the sample size range
 maximum_sample_size = pattern_size*2;
 size_range = pattern_size:maximum_sample_size;
@@ -79,7 +79,7 @@ end
 %% Generate a model
 
 % Set up model
-number_of_component = 3;
+number_of_component = 4;
 trainStart=tic();
 
 mdl = sprMDL(training_samples,number_of_component);
@@ -104,7 +104,7 @@ end
 %% Set up the testing sample
 
 % Number of Sample
-number_of_testing_samples = 50;
+number_of_testing_samples = 80;
 % Preallocate samples cell array
 testing_samples=cell([1,number_of_testing_samples]);
 

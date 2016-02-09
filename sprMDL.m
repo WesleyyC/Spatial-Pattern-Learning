@@ -177,7 +177,8 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         end
         
         % The EM-alogirthem procedure
-        function EM(obj,iter)     
+        function EM(obj,iter)    
+            trainRound=tic();
             % get the node matching score
             obj.graphMatching();
             % get the sample-component matching score and probability
@@ -196,6 +197,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             obj.updateComponentEdgeCov();
             % update the component structure depends on the node frequency
             obj.updateComponentStructure(iter);
+            toc(trainRound)
         end
         
         % update the component structure depends on the node frequency
@@ -437,6 +439,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
            % nomalize by the number of nodes in the component if it is
            % during the training
            if train
+               % experiment more with other option
                 score = score/log(size(node_match_score,2));
            end
         end
