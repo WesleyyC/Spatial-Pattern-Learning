@@ -1,4 +1,4 @@
- function [ match_matrix, C_n, C_e ] = graph_matching( ARG1, ARG2, train )
+ function [ match_matrix ] = graph_matching_old( ARG1,ARG2, alpha, stochastic )
 %   GRADUATED_ASSIGN_ALGORITHM is a function that compute the best match
 %   matrix with two ARGs
 
@@ -19,22 +19,21 @@
     e_B = 0.1;  % original is 0.5
     e_C = 0.01;   % original is 0.05
     
-    % e_cov to handle singularity
-    e_cov = 0.01;
-    
     % node attriubute compatability weight
-    alpha = 1;
+    if ~exist('alpha','var')
+     % third parameter does not exist, so default it to something
+      alpha = 1;
+    end
+    
+    if ~exist('stochastic','var')
+     % third parameter does not exist, so default it to something
+      stochastic = 0;
+    end
     
     % the size of the real matchin matrix
     A=ARG1.num_nodes;
-    I=ARG2.num_nodes-1;
+    I=ARG2.num_nodes;
     real_size = [A,I];
-    
-    % adjust ARG1
-    M = ARG2.edges_matrix(1:I,1:I);
-    M_C = ARG2.edges_cov(1:I,1:I);
-    V = ARG2.nodes_vector(1:I);
-    V_C = ARG2.nodes_cov(1:I);
     
     % the size of the matrix with slacks
     augment_size = real_size+[1,1];
@@ -42,18 +41,16 @@
     % initial beta to beta_0
     beta = beta_0;
     
-    % nil node compatibility percentage
-    prct = 10;
-    
     % pre-calculate the node compatability
     C_n=zeros(A+1,I+1);
     
     % create an function handle for calculating compatibility
     % calculate the compatibility
-    C_n(1:A,1:I)=compatiblity(repmat(ARG1.nodes_vector',1,I), repmat(V,A,1), repmat(V_C,A,1));
+    node_compat_handle=@(atr1,atr2)compatiblity(atr1,atr2);
+    C_n(1:A,1:I)=bsxfun(node_compat_handle,ARG1.nodes_vector',ARG2.nodes_vector);
     % calculate nil compatibility
-    C_n(A+1, 1:I)=prctile(C_n(1:A,1:I),prct,1);
-    C_n(1:A, I+1)=prctile(C_n(1:A,1:I),prct,2);
+    C_n(A+1, 1:I)=0;
+    C_n(1:A, I+1)=0;
     C_n(A+1, I+1)=0;
     % times the alpha weight
     C_n=alpha*C_n;
@@ -66,27 +63,20 @@
     tmp_edges(A+1,A+1) = Inf;
     edge_atr_1 = reshape(tmp_edges,1,[]);
     tmp_edges = NaN(I+1,I+1);
-    tmp_edges(1:I,1:I) = M;
+    tmp_edges(1:I,1:I) = ARG2.edges_matrix;
     tmp_edges(I+1,I+1) = Inf;
     edge_atr_2 = reshape(tmp_edges,1,[]);
-    tmp_edges_cov = ones(I+1,I+1);
-    tmp_edges_cov(1:I,1:I) = M_C;
-    tmp_edges_cov(I+1,1:I) = mean(M_C);
-    tmp_edges_cov(1:I,I+1) = mean(M_C,2);
-    tmp_edges_cov(I+1,I+1) = mean(M_C(:));
-    edges_cov = reshape(tmp_edges_cov,1,[]);
 
+    edge_compat_handle=@(atr1,atr2)compatiblity(atr1,atr2);
     
     parfor p = 1:(A+1)*(A+1)
-        score = exp(-0.5*(edge_atr_1(p)-edge_atr_2).^2./edges_cov)./(sqrt(abs(edges_cov))*(2*pi)^0.5);
-        score = score.*(edge_atr_1(p)~=0).*(edge_atr_2~=0);
-        C_e(p,:) = score;      
+        C_e(p,:)=bsxfun(edge_compat_handle,edge_atr_1(p),edge_atr_2);      
     end
 
     % nil<->a
     C_e(isnan(C_e)) = 0;
     % nil<->nil
-    C_e(isinf(C_e)) = prctile(reshape(C_e(C_e~=0),1,[]),prct);
+    C_e(isinf(C_e)) = 0;
     
     % set up the matrix
     m_Head = rand(augment_size);
@@ -103,11 +93,12 @@
 
         while ~converge_B && I_B <= I_0 % do B until B is converge or iteration exceeds
             
-            m_Head = m_Head + (2*rand(size(m_Head))-1)*(1/A);
+            if stochastic
+                m_Head = m_Head + (2*rand(size(m_Head))-1)*(1/A);
+            end
             
             old_B=m_Head;   % get the old matrix
             I_B = I_B+1;    % increment the iteration counting
-            
             
             % Build the partial derivative matrix Q
             Q=zeros(A+1,I+1);
@@ -121,8 +112,7 @@
             Q=Q+C_n;
             
             % Now update m_Head!
-            m_Head=exp(beta*Q);
-            m_Head(A+1, I+1)=0;
+            m_Head(1:A,1:I)=exp(beta*Q(1:A,1:I));
 
             % Setup converge in C step
             converge_C = 0; % a flag for terminating process B
@@ -156,18 +146,10 @@
     % Set up return
     
     % get the match_matrix in real size
-    match_matrix = heuristic(m_Head,A,I,train);
-    
-    % modify compatibility
-    C_n = C_n/alpha;
-    C_n = C_n(1:A,1:I+1);
-    for p = A+1:A+1:(A+1)*A
-        C_e(p,:)=NaN;      
-    end
-    C_e((A+1)*A+1:(A+1)*(A+1),:)=NaN;
-    C_e = C_e(~any(isnan(C_e),2),:);
+    match_matrix = heuristic(m_Head,A,I);
     
     % debug purpose
+    C_n = C_n/alpha;
     if sFlag
         close()
     end
@@ -185,11 +167,12 @@
         converge_B = abs(sum(sum(m_Head(1:A,1:I)-old_B(1:A,1:I))))<e_B;
     end
 
-    function [score] = compatiblity(atr1, atr2, cov)
-        cov = cov+e_cov;
-        score = exp(-0.5*(atr1-atr2).^2./cov)./(sqrt(abs(cov))*(2*pi)^0.5);
+    function [score] = compatiblity(atr1, atr2)
+        score = exp(-0.5*(atr1-atr2).^2)/(2*pi)^0.5;
+        score = score/(exp(-0.5*(0).^2)/(2*pi)^0.5);
         score = score.*(atr1~=0).*(atr2~=0);
     end
 
 end
+
 

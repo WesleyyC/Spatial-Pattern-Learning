@@ -3,12 +3,13 @@ classdef ARG < handle
     %	a list of node
     %   We have a E_arg(M) that we want to minimize
     
-    properties (GetAccess=public,SetAccess=public)
+    properties (GetAccess=public,SetAccess=private)
         num_nodes = NaN;
         nodes = {};
         edges = {};
         nodes_vector = NaN;
         edges_matrix = NaN;
+        
     end
     
     methods
@@ -52,12 +53,6 @@ classdef ARG < handle
             
             self.edges_matrix = M;
 
-        end
-        
-        % show ARG in matrix
-        function pattern_bg = showARG(obj)
-            pattern_bg = biograph(sparse(triu(obj.edges_matrix)),[],'ShowArrows','off','ShowWeights','on');
-            view(pattern_bg)
         end
         
     end
