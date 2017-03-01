@@ -32,6 +32,9 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         z_test_mean = 0;
         z_test_sigma = 0;
         
+        % debug var
+        c_idx = NaN;
+        
     end
     
     properties (Constant)
@@ -79,9 +82,10 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             idx = randperm(length(sampleARGs)); % we first permutate the index for randomness
             idx = idx(1:number_of_components);  % take what we need
             comp_ARG = sampleARGs(idx);
+            obj.c_idx = idx;
             
             % Now convert it to model ARG
-            generate_mdl_ARG=@(A)mdl_ARG(A.edges_matrix, A.nodes_vector);
+            generate_mdl_ARG=@(A)mdl_ARG(A);
             obj.mdl_ARGs=cellfun(generate_mdl_ARG,comp_ARG,'UniformOutput',false); 
             
             % Train the model with the sample
@@ -203,41 +207,40 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             for h = 1:obj.number_of_components
                 % for each node
                 for n = 1:obj.mdl_ARGs{h}.num_nodes
-                    if any(obj.mdl_ARGs{h}.nodes_vector(n))
-                        atrs = 0;
-                        denominator=0;
-                        % we go over the sample
-                        for i = 1:obj.number_of_sample
-                            current_sample_atrs = obj.sampleARGs{i}.nodes_vector.*obj.node_match_scores{i,h}(:,n)';
-                            current_sample_denominator = (obj.sampleARGs{i}.nodes_vector~=0).*obj.node_match_scores{i,h}(:,n)';
-                            
-                            current_sample_atrs = sum(current_sample_atrs);
-                            current_sample_denominator = sum(current_sample_denominator);
-                            
-                            atrs = atrs + current_sample_atrs*obj.sample_component_matching_probs(i,h);
-                            denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
-                        end
-                        % udpate the value
-                        obj.mdl_ARGs{h}.nodes_vector(n)=atrs/denominator;
+                    atrs = 0;
+                    denominator=0;
+                    % we go over the sample
+                    for i = 1:obj.number_of_sample
+                        current_sample_atrs = obj.sampleARGs{i}.nodes_vector.*repmat(obj.node_match_scores{i,h}(:,n),1,size(obj.sampleARGs{i}.nodes_vector,2));
+                        current_sample_denominator = obj.node_match_scores{i,h}(:,n);
+
+                        current_sample_atrs = sum(current_sample_atrs);
+                        current_sample_denominator = sum(current_sample_denominator);
+
+                        atrs = atrs + current_sample_atrs*obj.sample_component_matching_probs(i,h);
+                        denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
                     end
+                    % udpate the value
+                    obj.mdl_ARGs{h}.nodes_vector(n,:)=atrs/denominator;
                 end
             end       
         end
         
         % update the covariance matrix for each component node
         function updateComponentNodeCov(obj)
+            get_cov_time=@(r) reshape(r'*r,1,[]);
             % for each component
             for h = 1:obj.number_of_components
                 % for each node
                 for n = 1:obj.mdl_ARGs{h}.num_nodes
-                    if any(obj.mdl_ARGs{h}.nodes_vector(n))
+                    if any(obj.mdl_ARGs{h}.nodes_vector(n,:))
                         cov = 0;
                         denominator=0;
                         % we go over the sample
                         for i = 1:obj.number_of_sample
-                            x_atrs = obj.sampleARGs{i}.nodes_vector-obj.mdl_ARGs{h}.nodes_vector(n);
-                            current_sample_cov = (obj.sampleARGs{i}.nodes_vector~=0).*x_atrs.*x_atrs.*obj.node_match_scores{i,h}(:,n)';
-                            current_sample_denominator = (obj.sampleARGs{i}.nodes_vector~=0).*obj.node_match_scores{i,h}(:,n)';
+                            x_atrs = obj.sampleARGs{i}.nodes_vector-obj.mdl_ARGs{h}.nodes_vector(n,:);
+                            current_sample_cov = table2array(rowfun(get_cov_time, table(x_atrs))).*repmat(obj.node_match_scores{i,h}(:,n),1,size(x_atrs,2)^2);
+                            current_sample_denominator = obj.node_match_scores{i,h}(:,n);
                             
                             current_sample_cov = sum(current_sample_cov);
                             current_sample_denominator = sum(current_sample_denominator);
@@ -246,7 +249,9 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                             denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
                         end
                         % udpate the value
-                        obj.mdl_ARGs{h}.nodes_cov(n) = cov/denominator;
+                        new_cov = cov/denominator;
+                        new_cov = sprMDL.normalize_cov(new_cov);
+                        obj.mdl_ARGs{h}.nodes_cov(n,:) = new_cov;
                     end
                 end
             end       
@@ -259,13 +264,14 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 %for each edge 
                 for o = 1:obj.mdl_ARGs{h}.num_nodes
                     for t = o+1:obj.mdl_ARGs{h}.num_nodes
-                        if any(obj.mdl_ARGs{h}.edges_matrix(o,t))
+                        if any(obj.mdl_ARGs{h}.edges_matrix(o,t,:))
                             atrs = 0;
                             denominator=0;
                             %for each sample
                             for i = 1:obj.number_of_sample
-                                current_sample_atrs = obj.sampleARGs{i}.edges_matrix.*(obj.node_match_scores{i,h}(:,o)*obj.node_match_scores{i,h}(:,t)');
-                                current_sample_denominator = (obj.sampleARGs{i}.edges_matrix~=0).*(obj.node_match_scores{i,h}(:,o)*obj.node_match_scores{i,h}(:,t)');
+                                base = repmat(obj.node_match_scores{i,h}(:,o)*obj.node_match_scores{i,h}(:,t)',1,1,size(obj.sampleARGs{i}.edges_matrix,3));
+                                current_sample_atrs = obj.sampleARGs{i}.edges_matrix.*base;
+                                current_sample_denominator = any(obj.sampleARGs{i}.edges_matrix,3).*(obj.node_match_scores{i,h}(:,o)*obj.node_match_scores{i,h}(:,t)');
                                 
                                 current_sample_atrs = sum(sum(current_sample_atrs));
                                 current_sample_denominator = sum(sum(current_sample_denominator));
@@ -275,8 +281,8 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                             end
                             % update the value
                             new_atr = atrs/denominator;
-                            obj.mdl_ARGs{h}.edges_matrix(o,t) = new_atr;
-                            obj.mdl_ARGs{h}.edges_matrix(t,o) = new_atr;
+                            obj.mdl_ARGs{h}.edges_matrix(o,t,:) = new_atr;
+                            obj.mdl_ARGs{h}.edges_matrix(t,o,:) = new_atr;
                         end
                     end
                 end
@@ -285,19 +291,28 @@ classdef sprMDL < handle & matlab.mixin.Copyable
         
         % update the covariance matrix for each component edge
         function updateComponentEdgeCov(obj)
+            get_cov_time=@(r) reshape(reshape(r,1,[])'*reshape(r,1,[]),1,length(r)^2);
             %for each component
             for h = 1:obj.number_of_components
                 %for each edge 
                 for o = 1:obj.mdl_ARGs{h}.num_nodes
                     for t = o+1:obj.mdl_ARGs{h}.num_nodes
-                        if any(obj.mdl_ARGs{h}.edges_matrix(o,t))
+                        if any(obj.mdl_ARGs{h}.edges_matrix(o,t,:))
                             cov = 0;
                             denominator=0;
                             %for each sample
                             for i = 1:obj.number_of_sample
-                                z_atrs = obj.sampleARGs{i}.edges_matrix-obj.mdl_ARGs{h}.edges_matrix(o,t);
-                                current_sample_cov = (obj.sampleARGs{i}.edges_matrix~=0).*z_atrs.*z_atrs.*(obj.node_match_scores{i,h}(:,o)*obj.node_match_scores{i,h}(:,t)');
-                                current_sample_denominator = (obj.sampleARGs{i}.edges_matrix~=0).*(obj.node_match_scores{i,h}(:,o)*obj.node_match_scores{i,h}(:,t)');
+                                z_atrs = obj.sampleARGs{i}.edges_matrix-obj.mdl_ARGs{h}.edges_matrix(o,t,:);
+                                z_atrs = repmat(any(obj.sampleARGs{i}.edges_matrix,3),1,1,size(z_atrs,3)).*z_atrs;
+                                base = obj.node_match_scores{i,h}(:,o)*obj.node_match_scores{i,h}(:,t)';
+                                zz_atrs = NaN(size(z_atrs,1),size(z_atrs,2),size(z_atrs,3)^2);
+                                for x = 1:size(z_atrs,1)
+                                    for y = 1:size(z_atrs,2)
+                                        zz_atrs(x,y,:) = get_cov_time(z_atrs(x,y,:));
+                                    end
+                                end
+                                current_sample_cov = zz_atrs.*repmat(base,1,1,size(zz_atrs,3));
+                                current_sample_denominator = any(obj.sampleARGs{i}.edges_matrix,3).*base;
                                 
                                 current_sample_cov = sum(sum(current_sample_cov));
                                 current_sample_denominator = sum(sum(current_sample_denominator));
@@ -306,8 +321,10 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                                 denominator = denominator + current_sample_denominator*obj.sample_component_matching_probs(i,h);
                             end
                             % update the value
-                            obj.mdl_ARGs{h}.edges_cov(o,t) = cov/denominator;
-                            obj.mdl_ARGs{h}.edges_cov(t,o) = cov/denominator;
+                            new_cov = cov/denominator;
+                            new_cov = sprMDL.normalize_cov(new_cov);
+                            obj.mdl_ARGs{h}.edges_cov(o,t,:) = new_cov;
+                            obj.mdl_ARGs{h}.edges_cov(t,o,:) = new_cov;
                         end
                     end
                 end
@@ -339,18 +356,18 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 
         % Get the thredshold score for confimrming pattern
         function getThredsholdScore(obj)            
-            size = 0;
+            g_size = 0;
             for i = 1:obj.number_of_sample
-                size = size + obj.sampleARGs{i}.num_nodes;
+                g_size = g_size + obj.sampleARGs{i}.num_nodes;
             end
-            size = ceil(size / obj.number_of_sample);
+            g_size = ceil(g_size / obj.number_of_sample);
             
             edge_atrs = [];
             for i = 1:obj.number_of_sample
                 edge_atrs = [edge_atrs, obj.sampleARGs{i}.edges_matrix(:)'];
             end
             
-            weight_range = ceil(max(edge_atrs));
+            weight_range = floor(max(edge_atrs));
             
             connected_rate = length(find(edge_atrs))/length(edge_atrs);
             
@@ -359,12 +376,21 @@ classdef sprMDL < handle & matlab.mixin.Copyable
 
             for i = 1:number_of_random_samples
                 % setup sample
-                M1_size = round((1+rand*0.2)*size);
-                M1 = triu((rand(M1_size)*2-1)*weight_range,1);    %  upper left part of a random matrix with weight_range
-                connected_nodes = triu(rand(M1_size)<connected_rate,1);    % how many are connected
-                M1 = M1.*connected_nodes;
-                M1 = M1 + M1'; % make it symmetric
-                V1 = (rand([1,M1_size])*2-1)*weight_range;
+                M1_size = round((1+rand*0.2)*g_size);
+                M1 = cell(M1_size);
+                for x = 1:M1_size
+                    for y = x+1:M1_size
+                        if rand() < connected_rate
+                            M1{x,y} = (rand([1,size(obj.sampleARGs{1}.edges_matrix,3)])*2-1)*weight_range;
+                            M1{y,x} = M1{x,y};
+                        end
+                    end
+                end
+                V1 = cell([1, M1_size]);
+                for n = 1:M1_size
+                    V1{n} = (rand([1,size(obj.sampleARGs{1}.nodes_vector,2)])*2-1)*weight_range;
+                end
+
                 % Create the sample
                 random_sample_scores(i) = obj.scorePattern(ARG(M1, V1));
             end
@@ -388,6 +414,54 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                [node_match_score,node_compatibility,edge_compatibility]=graph_matching(ARG,obj.mdl_ARGs{i},false);
                 score = score + ...
                     sprMDL.component_score(node_match_score,node_compatibility,edge_compatibility) * obj.weight(i);
+            end
+        end
+        
+        function [] = debugMatch(obj)
+            figure;
+            f_count = 1;
+            fig_x = obj.number_of_components*3;
+            fig_y = obj.number_of_sample;
+            % match score
+            for i = 1:obj.number_of_sample
+                for j = 1:obj.number_of_components
+                    subplot(fig_x, fig_y, f_count);
+                    imshow(obj.node_match_scores{i,j})
+                    f_count = f_count + 1;
+                end
+            end
+            
+            for i = 1:obj.number_of_sample
+                for j = 1:obj.number_of_components
+                    subplot(fig_x, fig_y, f_count);
+                    imshow(obj.node_compatibilities{i,j})
+                    f_count = f_count + 1;
+                end
+            end
+            for i = 1:obj.number_of_sample
+                for j = 1:obj.number_of_components
+                    subplot(fig_x, fig_y, f_count);
+                    imshow(obj.edge_compatibilities{i,j})
+                    f_count = f_count + 1;
+                end
+            end
+            
+            figure;
+            f_count = 1;
+            fig_x = 2;
+            fig_y = obj.number_of_components;
+            
+            for i = 1:obj.number_of_components
+                subplot(fig_x, fig_y, f_count);
+                imshow(obj.mdl_ARGs{i}.nodes_cov)
+                f_count = f_count + 1;
+            end
+            for i = 1:obj.number_of_components
+                subplot(fig_x, fig_y, f_count);
+                c = reshape(obj.mdl_ARGs{i}.edges_cov, obj.mdl_ARGs{i}.num_nodes^2,size(obj.mdl_ARGs{i}.edges_cov,3));
+                idx = reshape(any(obj.mdl_ARGs{i}.edges_matrix,3), obj.mdl_ARGs{i}.num_nodes^2,1);
+                imshow(c(idx,:))
+                f_count = f_count + 1;
             end
         end
     end
@@ -429,7 +503,15 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 converge = false;
             end
         end
-       
+        
+        % normalize_cov
+        function M = normalize_cov(M)
+            M = reshape(M,sqrt(length(M)),sqrt(length(M)));
+            M = normr(M).*normr(M);
+            M = normc(M).*normc(M);
+            M = normr(M).*normr(M);
+            M = reshape(M,1,[]);
+        end
     end
 end
 

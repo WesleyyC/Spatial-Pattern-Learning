@@ -16,8 +16,8 @@
     I_1 = 200;   % original is 30
     
     % e control a range
-    e_B = 0.1;  % original is 0.5
-    e_C = 0.01;   % original is 0.05
+    e_B = 0.5;  % original is 0.5
+    e_C = 0.05;   % original is 0.05
     
     % e_cov to handle singularity
     e_cov = 0.01;
@@ -31,10 +31,10 @@
     real_size = [A,I];
     
     % adjust ARG1
-    M = ARG2.edges_matrix(1:I,1:I);
-    M_C = ARG2.edges_cov(1:I,1:I);
-    V = ARG2.nodes_vector(1:I);
-    V_C = ARG2.nodes_cov(1:I);
+    M = ARG2.edges_matrix(1:I,1:I,:);
+    M_C = ARG2.edges_cov(1:I,1:I,:);
+    V = ARG2.nodes_vector(1:I,:);
+    V_C = ARG2.nodes_cov(1:I,:);
     
     % the size of the matrix with slacks
     augment_size = real_size+[1,1];
@@ -50,7 +50,12 @@
     
     % create an function handle for calculating compatibility
     % calculate the compatibility
-    C_n(1:A,1:I)=compatiblity(repmat(ARG1.nodes_vector',1,I), repmat(V,A,1), repmat(V_C,A,1));
+    for a = 1:A
+        for i = 1:I
+            C_n(a,i) = node_compatibility(ARG1.nodes_vector(a,:),V(i,:),V_C(i,:));
+        end
+    end
+    
     % calculate nil compatibility
     C_n(A+1, 1:I)=prctile(C_n(1:A,1:I),prct,1);
     C_n(1:A, I+1)=prctile(C_n(1:A,1:I),prct,2);
@@ -59,28 +64,29 @@
     C_n=alpha*C_n;
     
     % pre-calculate the edge compatability
-    C_e = zeros((A+1)*(A+1),(I+1)*(I+1)); 
+    C_e = zeros((A+1)^2,(I+1)^2); 
     
-    tmp_edges = NaN(A+1,A+1);
-    tmp_edges(1:A,1:A) = ARG1.edges_matrix;
-    tmp_edges(A+1,A+1) = Inf;
-    edge_atr_1 = reshape(tmp_edges,1,[]);
-    tmp_edges = NaN(I+1,I+1);
-    tmp_edges(1:I,1:I) = M;
-    tmp_edges(I+1,I+1) = Inf;
-    edge_atr_2 = reshape(tmp_edges,1,[]);
-    tmp_edges_cov = ones(I+1,I+1);
-    tmp_edges_cov(1:I,1:I) = M_C;
-    tmp_edges_cov(I+1,1:I) = mean(M_C);
-    tmp_edges_cov(1:I,I+1) = mean(M_C,2);
-    tmp_edges_cov(I+1,I+1) = mean(M_C(:));
-    edges_cov = reshape(tmp_edges_cov,1,[]);
+    tmp_edges = NaN(A+1,A+1,size(ARG1.edges_matrix,3));
+    tmp_edges(1:A,1:A,:) = ARG1.edges_matrix;
+    tmp_edges(A+1,A+1,:) = Inf;
+    edge_atr_1 = reshape(tmp_edges,(A+1)^2,[]);
+    
+    tmp_edges = NaN(I+1,I+1,size(M,3));
+    tmp_edges(1:I,1:I,:) = M;
+    tmp_edges(I+1,I+1,:) = Inf;
+    edge_atr_2 = reshape(tmp_edges,(I+1)^2,[]);
+    
+    tmp_edges_cov = ones(I+1,I+1,size(M_C,3));
+    tmp_edges_cov(1:I,1:I,:) = M_C;
+    tmp_edges_cov(I+1,1:I,:) = mean(M_C);
+    tmp_edges_cov(1:I,I+1,:) = mean(M_C,2);
+    tmp_edges_cov(I+1,I+1,:) = mean(M_C(:));
+    edges_cov = reshape(tmp_edges_cov,(I+1)^2,[]);
 
-    
-    parfor p = 1:(A+1)*(A+1)
-        score = exp(-0.5*(edge_atr_1(p)-edge_atr_2).^2./edges_cov)./(sqrt(abs(edges_cov))*(2*pi)^0.5);
-        score = score.*(edge_atr_1(p)~=0).*(edge_atr_2~=0);
-        C_e(p,:) = score;      
+    for i = 1:(A+1)^2
+        for j = 1:(I+1)^2
+            C_e(i,j) = edge_compatibility(edge_atr_1(i,:),edge_atr_2(j,:),edges_cov(j,:));
+        end
     end
 
     % nil<->a
@@ -110,12 +116,9 @@
             
             
             % Build the partial derivative matrix Q
-            Q=zeros(A+1,I+1);
-            for a = 1:A+1
-                for i = 1:I+1
-                    Q(a,i)=sum(sum(C_e(((a-1)*(A+1)+1):((a-1)*(A+1)+(A+1)),((i-1)*(I+1)+1):((i-1)*(I+1)+(I+1))).*m_Head));
-                end
-            end
+            m_Head_aug = repmat(m_Head,A+1,I+1);
+            Q_aug = C_e.*m_Head_aug;
+            Q = squeeze(sum(sum(reshape(Q_aug,A+1,A+1,I+1,I+1),1),3));
             
             %add node attribute
             Q=Q+C_n;
@@ -132,11 +135,7 @@
                 I_C=I_C+1;  % increment C
                 old_C=m_Head;   % get the m_Head before processing to determine convergence
                 
-                %normalize the row
-                m_Head(1:A,:)=normr(m_Head(1:A,:)).*normr(m_Head(1:A,:));
-                
-                % normalize the column
-                m_Head(:,1:I)=normc(m_Head(:,1:I)).*normc(m_Head(:,1:I));
+                normalized_match()
                 
                 % check convergence
                 convergeC();
@@ -185,10 +184,35 @@
         converge_B = abs(sum(sum(m_Head(1:A,1:I)-old_B(1:A,1:I))))<e_B;
     end
 
-    function [score] = compatiblity(atr1, atr2, cov)
-        cov = cov+e_cov;
-        score = exp(-0.5*(atr1-atr2).^2./cov)./(sqrt(abs(cov))*(2*pi)^0.5);
-        score = score.*(atr1~=0).*(atr2~=0);
+    function [] = normalized_match()
+        m_Head = bsxfun(@rdivide,m_Head,sqrt(sum(m_Head.^2,2)));
+        m_Head = m_Head.^2;
+        m_Head = bsxfun(@rdivide,m_Head,sqrt(sum(m_Head.^2,1)));
+        m_Head = m_Head.^2;
+    end 
+
+    function [score] = node_compatibility(atr1, atr2, cov)
+        cov = reshape(cov, length(atr2), length(atr2));
+        cov = cov+eye(size(cov))*e_cov;
+        score = exp(-0.5*(atr1-atr2)*(cov\(atr1-atr2)'))/(sqrt(det(cov))*(2*pi)^(length(atr2)/2));
+    end
+
+    function [score] = edge_compatibility(atr1, atr2, cov)
+        
+        if ~any(atr1) || ~any(atr2)
+            score = 0;
+            return
+        elseif any(isnan(atr1)) || any(isnan(atr2))
+            score = NaN;
+            return
+        elseif any(isnan(atr1)) || any(isnan(atr2))
+            score = inf;
+            return
+        end
+        
+        cov = reshape(cov, length(atr2), length(atr2));
+        cov = cov+eye(size(cov))*e_cov;
+        score = exp(-0.5*(atr1-atr2)*(cov\(atr1-atr2)'))/(sqrt(det(cov))*(2*pi)^(length(atr2)/2));
     end
 
 end
