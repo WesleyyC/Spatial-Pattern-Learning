@@ -2,6 +2,9 @@
 
 ###### Wesley Wei Qian on 07-20-15
 
+## Update
+I have made some improvements in the underlying graph matching alogrithm and some siginificant code changes from V1.0. However, I haven't gotten the time to update the following doc for V2.0 yet. (01-01-17)
+
 ## Contents
 - [Introduction](#introduction) 
 - [Code Explanation](#code-explanation) 
