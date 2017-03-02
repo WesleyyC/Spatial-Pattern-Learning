@@ -11,11 +11,11 @@ save_result = 0;
 
 g_size = 10;
 weight_range = 1;
-connected_rate = 0.15;
+connected_rate = 0.2;
 noise_rate = 0.1;
 
-node_feature = 5;
-edge_feature = 5;
+node_feature = 3;
+edge_feature = 3;
 
 %% Set up the testing pattern
 
@@ -79,10 +79,10 @@ for i = 1:number_of_training_samples
         V1{n} = V1{n} + randn([1,node_feature])*weight_range*noise_rate;
     end
     
-    % pemutate sample
-    idx1 = randperm(M1_size);
-    M1=M1(idx1,idx1);
-    V1=V1(idx1);
+%     % pemutate sample
+%     idx1 = randperm(M1_size);
+%     M1=M1(idx1,idx1);
+%     V1=V1(idx1);
     
     % Build up the sample ARG
     training_samples{i} = ARG(M1, V1);

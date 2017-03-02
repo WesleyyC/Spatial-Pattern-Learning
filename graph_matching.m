@@ -60,8 +60,10 @@
     C_n(A+1, 1:I)=prctile(C_n(1:A,1:I),prct,1);
     C_n(1:A, I+1)=prctile(C_n(1:A,1:I),prct,2);
     C_n(A+1, I+1)=0;
-    % times the alpha weight
+    % times the alpha weight and normalized
     C_n=alpha*C_n;
+    C_n = normalize_compatibility(C_n);
+    
     
     % pre-calculate the edge compatability
     C_e = zeros((A+1)^2,(I+1)^2); 
@@ -94,6 +96,8 @@
     % nil<->nil
     C_e(isinf(C_e)) = prctile(reshape(C_e(C_e~=0),1,[]),prct);
     
+    C_e = normalize_compatibility(C_e);
+    
     % set up the matrix
     m_Head = rand(augment_size);
     m_Head(A+1, I+1)=0;
@@ -124,7 +128,8 @@
             Q=Q+C_n;
             
             % Now update m_Head!
-            m_Head=exp(beta*Q);
+            Q = beta*Q;
+            m_Head=exp(Q);
             m_Head(A+1, I+1)=0;
 
             % Setup converge in C step
@@ -213,6 +218,12 @@
         cov = reshape(cov, length(atr2), length(atr2));
         cov = cov+eye(size(cov))*e_cov;
         score = exp(-0.5*(atr1-atr2)*(cov\(atr1-atr2)'))/(sqrt(det(cov))*(2*pi)^(length(atr2)/2));
+    end
+
+    function M = normalize_compatibility(M)
+            M = normr(M).*normr(M);
+            M = normc(M).*normc(M);
+            M = normr(M).*normr(M);
     end
 
 end

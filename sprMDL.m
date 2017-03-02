@@ -250,7 +250,6 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                         end
                         % udpate the value
                         new_cov = cov/denominator;
-                        new_cov = sprMDL.normalize_cov(new_cov);
                         obj.mdl_ARGs{h}.nodes_cov(n,:) = new_cov;
                     end
                 end
@@ -322,7 +321,6 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                             end
                             % update the value
                             new_cov = cov/denominator;
-                            new_cov = sprMDL.normalize_cov(new_cov);
                             obj.mdl_ARGs{h}.edges_cov(o,t,:) = new_cov;
                             obj.mdl_ARGs{h}.edges_cov(t,o,:) = new_cov;
                         end
@@ -367,7 +365,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                 edge_atrs = [edge_atrs, obj.sampleARGs{i}.edges_matrix(:)'];
             end
             
-            weight_range = floor(max(edge_atrs));
+            weight_range = max(edge_atrs);
             
             connected_rate = length(find(edge_atrs))/length(edge_atrs);
             
@@ -504,14 +502,6 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             end
         end
         
-        % normalize_cov
-        function M = normalize_cov(M)
-            M = reshape(M,sqrt(length(M)),sqrt(length(M)));
-            M = normr(M).*normr(M);
-            M = normc(M).*normc(M);
-            M = normr(M).*normr(M);
-            M = reshape(M,1,[]);
-        end
     end
 end
 
