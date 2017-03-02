@@ -238,7 +238,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                         denominator=0;
                         % we go over the sample
                         for i = 1:obj.number_of_sample
-                            x_atrs = obj.sampleARGs{i}.nodes_vector-obj.mdl_ARGs{h}.nodes_vector(n,:);
+                            x_atrs = obj.sampleARGs{i}.nodes_vector-repmat(obj.mdl_ARGs{h}.nodes_vector(n,:),size(obj.sampleARGs{i}.nodes_vector,1),1);
                             current_sample_cov = table2array(rowfun(get_cov_time, table(x_atrs))).*repmat(obj.node_match_scores{i,h}(:,n),1,size(x_atrs,2)^2);
                             current_sample_denominator = obj.node_match_scores{i,h}(:,n);
                             
@@ -301,7 +301,7 @@ classdef sprMDL < handle & matlab.mixin.Copyable
                             denominator=0;
                             %for each sample
                             for i = 1:obj.number_of_sample
-                                z_atrs = obj.sampleARGs{i}.edges_matrix-obj.mdl_ARGs{h}.edges_matrix(o,t,:);
+                                z_atrs = obj.sampleARGs{i}.edges_matrix-repmat(obj.mdl_ARGs{h}.edges_matrix(o,t,:),size(obj.sampleARGs{i}.edges_matrix,1),size(obj.sampleARGs{i}.edges_matrix,2),1);
                                 z_atrs = repmat(any(obj.sampleARGs{i}.edges_matrix,3),1,1,size(z_atrs,3)).*z_atrs;
                                 base = obj.node_match_scores{i,h}(:,o)*obj.node_match_scores{i,h}(:,t)';
                                 zz_atrs = NaN(size(z_atrs,1),size(z_atrs,2),size(z_atrs,3)^2);

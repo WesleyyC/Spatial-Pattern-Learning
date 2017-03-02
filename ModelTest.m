@@ -14,8 +14,8 @@ weight_range = 1;
 connected_rate = 0.2;
 noise_rate = 0.1;
 
-node_feature = 3;
-edge_feature = 3;
+node_feature = 5;
+edge_feature = 5;
 
 %% Set up the testing pattern
 
