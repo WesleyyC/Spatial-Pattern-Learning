@@ -43,7 +43,7 @@
     beta = beta_0;
     
     % nil node compatibility percentage
-    prct = 10;
+    prct = 100;
     
     % pre-calculate the node compatability
     C_n=zeros(A+1,I+1);
@@ -56,13 +56,14 @@
         end
     end
     
+    C_n(1:A,1:I) = normalize_compatibility(C_n(1:A,1:I));
+    
     % calculate nil compatibility
     C_n(A+1, 1:I)=prctile(C_n(1:A,1:I),prct,1);
     C_n(1:A, I+1)=prctile(C_n(1:A,1:I),prct,2);
     C_n(A+1, I+1)=0;
     % times the alpha weight and normalized
     C_n=alpha*C_n;
-    C_n = normalize_compatibility(C_n);
     
     
     % pre-calculate the edge compatability
@@ -90,14 +91,17 @@
             C_e(i,j) = edge_compatibility(edge_atr_1(i,:),edge_atr_2(j,:),edges_cov(j,:));
         end
     end
+    
+    nan_idx = isnan(C_e);
+    inf_idx = isinf(C_e);
+
+    C_e = normalize_compatibility(C_e);
 
     % nil<->a
-    C_e(isnan(C_e)) = 0;
+    C_e(nan_idx) = 0;
     % nil<->nil
-    C_e(isinf(C_e)) = prctile(reshape(C_e(C_e~=0),1,[]),prct);
-    
-    C_e = normalize_compatibility(C_e);
-    
+    C_e(inf_idx) = prctile(reshape(C_e(0~=C_e),1,[]),prct);
+        
     % set up the matrix
     m_Head = rand(augment_size);
     m_Head(A+1, I+1)=0;
@@ -210,7 +214,7 @@
         elseif any(isnan(atr1)) || any(isnan(atr2))
             score = NaN;
             return
-        elseif any(isnan(atr1)) || any(isnan(atr2))
+        elseif any(isinf(atr1)) || any(isinf(atr2))
             score = inf;
             return
         end

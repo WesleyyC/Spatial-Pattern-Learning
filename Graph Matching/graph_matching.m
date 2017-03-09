@@ -111,7 +111,10 @@
                     Q(a,i)=sum(sum(C_e(((a-1)*(A+1)+1):((a-1)*(A+1)+(A+1)),((i-1)*(I+1)+1):((i-1)*(I+1)+(I+1))).*m_Head));
                 end
             end
-            
+%             edge_comp_handle = @(mat)sum(sum(bsxfun(@times,m_Head,mat)));
+%             C_e_c = mat2cell(C_e,ones(1,A+1)*A+1,ones(1,I+1)*I+1);
+%             Q = cellfun(edge_comp_handle,C_e_c);
+%             
             %add node attribute
             Q=Q+C_n;
             
@@ -141,6 +144,7 @@
             if sFlag
                 imshow(m_Head,'InitialMagnification',500);
             end
+            
             convergeB();
         end
         

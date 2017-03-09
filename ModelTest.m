@@ -9,7 +9,7 @@ save_result = 0;
 
 %% Setup Parameter
 
-g_size = 10;
+g_size = 20;
 weight_range = 1;
 connected_rate = 0.2;
 noise_rate = 0.1;

@@ -8,10 +8,10 @@ tStart = tic();
 %% Basic Configuration Setup
 
 % How many rounds
-rounds = 100;
+rounds = 2;
 
 % The size if the test graph
-size = 40;
+size = 50;
 
 % The range of the edge rate
 weight_range = 1;  % update with edge_compatibility/node_compatibility

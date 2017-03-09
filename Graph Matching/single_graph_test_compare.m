@@ -73,7 +73,7 @@ ARG2 = ARG(M2,V2);
 
 % Do the match algorithm
 match = graph_matching(ARG1,ARG2,1,1);
-match_old = graph_matching_old(ARG1,ARG2,1,0);
+match_old = graph_matching_c(ARG1,ARG2,1,1);
 
 % Get back the original
 result = match(rev1,rev2);
