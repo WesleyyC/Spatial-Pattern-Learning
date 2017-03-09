@@ -1,6 +1,6 @@
 # Spatial Pattern Recognition
 
-###### Wesley Wei Qian on 07-20-15
+###### Wesley Wei Qian on 03-09-17
 
 ## Update
 I have made some improvements in the underlying graph matching alogrithm and attribute update procedure. There are some siginificant code changes from V1.0, but I haven't gotten the time to update the doc yet. The improvement is huge and we are able to separte graph with embedded pattern from random graph with sharp difference:
