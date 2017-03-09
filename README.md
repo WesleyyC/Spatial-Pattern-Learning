@@ -3,7 +3,10 @@
 ###### Wesley Wei Qian on 07-20-15
 
 ## Update
-I have made some improvements in the underlying graph matching alogrithm and some siginificant code changes from V1.0. However, I haven't gotten the time to update the following doc for V2.0 yet. (01-01-17)
+I have made some improvements in the underlying graph matching alogrithm and attribute update procedure. There are some siginificant code changes from V1.0, but I haven't gotten the time to update the doc yet. The improvement is huge and we are able to separte graph with embedded pattern from random graph with sharp difference:
+
+![new result](https://github.com/WesleyyC/Spatial-Pattern-Learning/blob/master/result/50%20nodes/result.png)
+
 
 ## Contents
 - [Introduction](#introduction) 
