@@ -5,7 +5,7 @@ clear
 
 view_pattern = 0;
 
-save_result = 0;
+save_result = 1;
 
 %% Setup Parameter
 
