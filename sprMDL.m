@@ -421,23 +421,23 @@ classdef sprMDL < handle & matlab.mixin.Copyable
             fig_x = obj.number_of_components*3;
             fig_y = obj.number_of_sample;
             % match score
-            for i = 1:obj.number_of_sample
-                for j = 1:obj.number_of_components
+            for j = 1:obj.number_of_components
+                for i = 1:obj.number_of_sample
                     subplot(fig_x, fig_y, f_count);
                     imshow(obj.node_match_scores{i,j})
                     f_count = f_count + 1;
                 end
             end
             
-            for i = 1:obj.number_of_sample
-                for j = 1:obj.number_of_components
+            for j = 1:obj.number_of_components
+                for i = 1:obj.number_of_sample
                     subplot(fig_x, fig_y, f_count);
                     imshow(obj.node_compatibilities{i,j})
                     f_count = f_count + 1;
                 end
             end
-            for i = 1:obj.number_of_sample
-                for j = 1:obj.number_of_components
+            for j = 1:obj.number_of_components
+                for i = 1:obj.number_of_sample
                     subplot(fig_x, fig_y, f_count);
                     imshow(obj.edge_compatibilities{i,j})
                     f_count = f_count + 1;
